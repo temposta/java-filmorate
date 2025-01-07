@@ -13,8 +13,8 @@ import java.util.Map;
 @Repository
 public class InMemoryUserRepositoryImpl implements UserRepository {
 
-    private int counter = 0;
-    private final Map<Integer, User> users = new HashMap<>();
+    private Long counter = 0L;
+    private final Map<Long, User> users = new HashMap<>();
 
     @Override
     public User addUser(User user) {

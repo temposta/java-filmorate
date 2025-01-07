@@ -13,8 +13,8 @@ import java.util.Map;
 @Repository
 public class InMemoryFilmRepositoryImpl implements FilmRepository {
 
-    private int counter = 0;
-    private final Map<Integer, Film> films = new HashMap<>();
+    private Long counter = 0L;
+    private final Map<Long, Film> films = new HashMap<>();
 
     @Override
     public Film addFilm(Film film) {
