@@ -7,7 +7,9 @@ import java.util.List;
 public interface FilmRepository {
 
     Film addFilm(Film film);
+
     Film updateFilm(Film film);
+
     Film deleteFilm(Film film);
 
     List<Film> getAllFilms();
