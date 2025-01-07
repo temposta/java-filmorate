@@ -28,12 +28,12 @@ public class UserController {
     public User create(@Valid @RequestBody User user) {
         log.info("Получен запрос на создание пользователя: {}", user.toString());
 
-        if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))){
+        if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
             log.error("Адрес электронной почты {} уже используется", user.getEmail());
             throw new ValidationException("Этот адрес электронной почты уже используется");
         }
 
-        if (user.getName() == null || user.getName().isBlank()){
+        if (user.getName() == null || user.getName().isBlank()) {
             log.warn("Имя пользователя не указано, используется логин ({}) в качестве имени", user.getLogin());
             user.setName(user.getLogin());
         }
@@ -52,14 +52,14 @@ public class UserController {
             throw new ValidationException("Id должен быть указан");
         }
 
-        if (newUser.getEmail() == null || newUser.getName() == null || newUser.getLogin() == null){
+        if (newUser.getEmail() == null || newUser.getName() == null || newUser.getLogin() == null) {
             log.warn("В составе аргументов изменяемого пользователя не заполнены обязательные значения, изменение не выполнено");
             return newUser;
         }
 
         if (users.containsKey(newUser.getId())) {
             if (users.values().stream()
-                    .anyMatch(u -> u.getEmail().equals(newUser.getEmail()) && !Objects.equals(u.getId(), newUser.getId()))){
+                    .anyMatch(u -> u.getEmail().equals(newUser.getEmail()) && !Objects.equals(u.getId(), newUser.getId()))) {
                 log.error("Новый адрес электронной почты {} уже используется для другого пользователя", newUser.getEmail());
                 throw new ValidationException("Этот адрес электронной почты уже используется");
             }
