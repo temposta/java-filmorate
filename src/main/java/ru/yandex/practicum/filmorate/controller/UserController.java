@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +18,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.List;
+import java.util.Map;
+
+import static ru.yandex.practicum.filmorate.controller.ExceptionHandlers.getResponse;
 
 @Slf4j
 @RestController
@@ -39,12 +44,12 @@ public class UserController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public User updateUser(@RequestBody @Valid User user) {
         log.info("Updating user: {} - Starting", user);
-        repository.updateUser(user);
+        User updatedUser = repository.updateUser(user);
         log.info("User updated: {} - Finishing", user);
-        return user;
+        return updatedUser;
     }
 
     @GetMapping
@@ -60,6 +65,18 @@ public class UserController {
         log.info("Deleting user: {} - Starting", user);
         repository.deleteUser(user);
         log.info("User deleted: {} - Finishing", user);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidationException(MethodArgumentNotValidException ex) {
+        return getResponse(ex, log);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleValidationException(NullPointerException ex) {
+        return getResponse(ex, log);
     }
 
 }

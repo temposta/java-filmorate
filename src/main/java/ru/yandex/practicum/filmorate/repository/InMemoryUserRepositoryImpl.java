@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.repository;
 
+import lombok.NonNull;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -18,30 +19,29 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
     @Override
     public User addUser(User user) {
         user.setId(++counter);
-        if (user.getName().isBlank()) user.setName(user.getLogin());
+        String name = user.getName();
+        if (name == null) user.setName(user.getLogin());
         return users.put(user.getId(), user);
     }
 
     @Override
     public User updateUser(User user) {
-        User oldUser = users.get(user.getId());
-        if (oldUser != null) {
-            String newEmail = user.getEmail();
-            boolean emailExists = users
-                    .values()
-                    .stream()
-                    .anyMatch(u -> u.getEmail().equals(newEmail));
-            if (!emailExists) oldUser.setEmail(newEmail);
-            String newLogin = user.getLogin();
-            if (!newLogin.isBlank()) oldUser.setLogin(newLogin);
-            String newName = user.getName();
-            if (!newName.isBlank()) oldUser.setName(newName);
-            else  oldUser.setName(oldUser.getLogin());
-            LocalDate newBirthday = user.getBirthday();
-            if (newBirthday != null) oldUser.setBirthday(newBirthday);
-            return oldUser;
-        }
-        return null;
+        @NonNull
+        User updatableUser = users.get(user.getId());
+        String newEmail = user.getEmail();
+        boolean emailExists = users
+                .values()
+                .stream()
+                .anyMatch(u -> u.getEmail().equals(newEmail));
+        if (!emailExists) updatableUser.setEmail(newEmail);
+        String newLogin = user.getLogin();
+        if (newLogin != null) updatableUser.setLogin(newLogin);
+        String newName = user.getName();
+        if (!newName.isBlank()) updatableUser.setName(newName);
+        else updatableUser.setName(updatableUser.getLogin());
+        LocalDate newBirthday = user.getBirthday();
+        if (newBirthday != null) updatableUser.setBirthday(newBirthday);
+        return updatableUser;
     }
 
     @Override

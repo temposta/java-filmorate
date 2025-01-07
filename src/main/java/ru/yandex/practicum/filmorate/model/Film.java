@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validators.MinDate;
 
@@ -16,7 +16,7 @@ public class Film {
     private int id;
     @NotBlank
     private String name;
-    @Max(200)
+    @Size(max = 200)
     private String description;
     @MinDate("1895-12-28")
     private LocalDate releaseDate;
