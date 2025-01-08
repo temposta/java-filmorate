@@ -23,22 +23,54 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("работа валидации данных модели Film")
-    void testUserValidations() {
+    @DisplayName("проверка валидации поля Email по шаблону")
+    void testEmailTemplateValidation() {
         User user = new User();
         user.setEmail("testtestcom");
-        user.setLogin("test login");
+        user.setLogin("login");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
+
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    @DisplayName("проверка валидации поля Email на пустоту")
+    void testEmailNotBlankValidation() {
+        User user = new User();
+        user.setEmail("");
+        user.setLogin("login");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
+
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    @DisplayName("проверка валидации поля Login")
+    void testLoginValidation() {
+        User user = new User();
+        user.setEmail("test@email.com");
+        user.setLogin("log in");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
+
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    @DisplayName("проверка валидации поля Birthday")
+    void testBirthdayValidation() {
+        User user = new User();
+        user.setEmail("test@email.com");
+        user.setLogin("login");
         user.setBirthday(LocalDate.of(2990, 1, 1));
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
-        assertEquals(3, violations.size());
-
-        user.setEmail("");
-        user.setLogin("");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
-        violations = validator.validate(user);
-        violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
-        assertEquals(2, violations.size());
+        assertEquals(1, violations.size());
     }
 }

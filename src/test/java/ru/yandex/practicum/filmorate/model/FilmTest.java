@@ -23,20 +23,56 @@ class FilmTest {
     }
 
     @Test
-    @DisplayName("работа валидации данных модели Film")
-    void testFilmValidations() {
+    @DisplayName("проверка валидации поля Description")
+    void testDescriptionValidation() {
         Film film = new Film();
-        film.setDescription("as;dlkjfa;sdlfkjassdlfkjasd;flaskdjfa;sd;flasdlfkjasd;flaskdjfa;sskdjfa;sdlkfja;sdlkf" +
-                "jas;dlkfjas;dklfjas;dkfjas;dsdlfkjasd;flaskdjfa;skfjasdlfkjasd;flaskdjfa;ss;dkfjas;dkfjas;dk" +
-                "asdfasdfasdfasdfasdfasdfasdsdlfkjasd;flaskdjfa;sfasdlfkjasd;flaskdjfa;sdaasdfasdfasdfasdf" +
-                "asdfadfasdfasdfasdfadfasdfasdlfkjasd;flaskdjfa;ssdfasdfasdfasfasdfjasd");
-        film.setDuration(-20);
+        film.setDescription("a".repeat(210));
+        film.setDuration(10);
+        film.setName("name");
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    @DisplayName("проверка валидации поля Duration")
+    void testDurationValidation() {
+        Film film = new Film();
+        film.setDescription("a".repeat(10));
+        film.setDuration(-10);
+        film.setName("name");
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    @DisplayName("проверка валидации поля Name")
+    void testNameValidation() {
+        Film film = new Film();
+        film.setDescription("a".repeat(10));
+        film.setDuration(10);
         film.setName(" ");
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    @DisplayName("проверка валидации поля ReleaseDate")
+    void testReleaseDateValidation() {
+        Film film = new Film();
+        film.setDescription("a".repeat(10));
+        film.setDuration(10);
+        film.setName("name");
         film.setReleaseDate(LocalDate.of(1700, 1, 1));
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
-        assertEquals(4, violations.size());
+        assertEquals(1, violations.size());
     }
 
 }
