@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -24,47 +24,47 @@ import static ru.yandex.practicum.filmorate.controller.ExceptionHandlers.getResp
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
+@RequestMapping("/users")
 @Validated
-public class FilmController {
+public class UserController {
 
-    private final FilmRepository repository;
+    private final UserRepository repository;
 
-    public FilmController(FilmRepository repository) {
+    public UserController(UserRepository repository) {
         this.repository = repository;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    Film saveFilm(@RequestBody @Valid Film film) {
-        log.info("Create Film: {} - Started", film);
-        repository.addFilm(film);
-        log.info("Create Film: {} - Created", film);
-        return film;
+    public User createUser(@RequestBody @Valid User user) {
+        log.info("Creating user: {} - Starting", user);
+        repository.addUser(user);
+        log.info("User created: {} - Finishing", user);
+        return user;
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    Film updateFilm(@RequestBody @Valid Film film) {
-        log.info("Update Film: {} - Started", film);
-        Film updatedFilm = repository.updateFilm(film);
-        log.info("Update Film: {} - Updated", film);
-        return updatedFilm;
+    public User updateUser(@RequestBody @Valid User user) {
+        log.info("Updating user: {} - Starting", user);
+        User updatedUser = repository.updateUser(user);
+        log.info("User updated: {} - Finishing", user);
+        return updatedUser;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    List<Film> getAllFilms() {
-        log.info("Get All Films");
-        return repository.getAllFilms();
+    public List<User> getAllUsers() {
+        log.info("Getting all users");
+        return repository.getAllUsers();
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
-    void deleteFilm(@RequestBody @Valid Film film) {
-        log.info("Delete Film: {} - Started", film);
-        repository.deleteFilm(film);
-        log.info("Delete Film: {} - Deleted", film);
+    public void deleteUser(@RequestBody @Valid User user) {
+        log.info("Deleting user: {} - Starting", user);
+        repository.deleteUser(user);
+        log.info("User deleted: {} - Finishing", user);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
