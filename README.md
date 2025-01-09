@@ -1,2 +1,3 @@
 # java-filmorate
-Template repository for Filmorate project.
+
+Репозиторий учебного проекта курса Java-разработчик Yandex Practicum
