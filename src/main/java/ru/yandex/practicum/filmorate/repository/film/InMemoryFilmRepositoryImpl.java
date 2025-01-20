@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.repository;
+package ru.yandex.practicum.filmorate.repository.film;
 
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class InMemoryFilmRepositoryImpl implements FilmRepository {
@@ -17,13 +18,13 @@ public class InMemoryFilmRepositoryImpl implements FilmRepository {
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public Film addFilm(Film film) {
+    public Film add(Film film) {
         film.setId(++counter);
         return films.put(film.getId(), film);
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         @NotNull
         Film updatableFilm = films.get(film.getId());
         String newName = film.getName();
@@ -34,17 +35,26 @@ public class InMemoryFilmRepositoryImpl implements FilmRepository {
         if (newReleaseDate != null) updatableFilm.setReleaseDate(newReleaseDate);
         int newDuration = film.getDuration();
         if (newDuration > 0) updatableFilm.setDuration(newDuration);
+        Set<Long> newLikes = film.getLikes();
+        updatableFilm.setLikes(newLikes);
         return updatableFilm;
     }
 
     @Override
-    public Film deleteFilm(Film film) {
+    public Film delete(Film film) {
         return films.remove(film.getId());
     }
 
     @Override
-    public List<Film> getAllFilms() {
+    public List<Film> getAll() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public Film findById(long id) {
+        @NotNull
+        Film film = films.get(id);
+        return film;
     }
 
 }
