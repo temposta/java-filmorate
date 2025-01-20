@@ -30,7 +30,7 @@ public class ExceptionApiHandler {
     }
 
     @ExceptionHandler(NullPointerException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> nullPointerException(NullPointerException ex) {
         return getResponse(ex, log);
     }
