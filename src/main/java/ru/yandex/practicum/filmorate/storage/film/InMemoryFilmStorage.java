@@ -10,7 +10,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
 
     private long sequenceId;
     private final Map<Long, Film> films;
