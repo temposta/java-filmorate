@@ -1,86 +1,97 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
 
-    @GetMapping
-    public Collection<User> findAll() {
-        log.info("Получен запрос на получение списка всех пользователей");
-        return users.values();
-    }
+    @Autowired
+    private final UserService userService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User create(@Valid @RequestBody User user) {
         log.info("Получен запрос на создание пользователя: {}", user.toString());
+        return userService.create(user);
+    }
 
-        if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            log.error("Адрес электронной почты {} уже используется", user.getEmail());
-            throw new ValidationException("Этот адрес электронной почты уже используется");
-        }
-
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.warn("Имя пользователя не указано, используется логин ({}) в качестве имени", user.getLogin());
-            user.setName(user.getLogin());
-        }
-
-        user.setId(getNextId());
-        users.put(user.getId(), user);
-        log.info("Пользователь добавлен с идентификатором {}", user.getId());
-        return user;
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User read(long id) {
+        log.info("Получен запрос на получение пользователя с идентификатором: {}", id);
+        return userService.read(id);
     }
 
     @PutMapping
+    @ResponseStatus(HttpStatus.OK)
     public User update(@Valid @RequestBody User newUser) {
-        // проверяем необходимые условия
-        if (newUser.getId() == null) {
-            log.error("Для изменяемого пользователя не указан идентификатор во входящих аргументах");
-            throw new ValidationException("Id должен быть указан");
-        }
-
-        if (newUser.getEmail() == null || newUser.getName() == null || newUser.getLogin() == null) {
-            log.warn("В составе аргументов изменяемого пользователя не заполнены обязательные значения, изменение не выполнено");
-            return newUser;
-        }
-
-        if (users.containsKey(newUser.getId())) {
-            if (users.values().stream()
-                    .anyMatch(u -> u.getEmail().equals(newUser.getEmail()) && !Objects.equals(u.getId(), newUser.getId()))) {
-                log.error("Новый адрес электронной почты {} уже используется для другого пользователя", newUser.getEmail());
-                throw new ValidationException("Этот адрес электронной почты уже используется");
-            }
-
-            // если публикация найдена и все условия соблюдены, обновляем её содержимое
-            User oldUser = newUser.toBuilder().build();
-            users.put(newUser.getId(), oldUser);
-            return oldUser;
-        }
-
-        log.error("Пользователь с id = {} не найден", newUser.getId());
-        throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+        log.info("Получен запрос на обновление пользователя: {}", newUser.toString());
+        return userService.update(newUser);
     }
 
-    // вспомогательный метод для генерации идентификатора нового поста
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(long id) {
+        log.info("Получен запрос на удаление фильма с пользователя: {}", id);
+        userService.delete(id);
     }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<User> findAll() {
+        log.info("Получен запрос на получение списка всех пользователей");
+        return userService.getAll();
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriends(@PathVariable("id") Long userId) {
+        log.info("Вызван метод GET /users/{id}/friends с id = {}", userId);
+        List<User> userFriends = userService.getFriends(userId);
+        log.info("Метод GET /users/{id}/friends вернул ответ {}", userFriends);
+        return userFriends;
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriendsCommonOther(@PathVariable("id") Long userId,
+                                            @PathVariable("otherId") Long otherId) {
+        log.info("Вызван метод GET /users/{id}/friends/common/{otherId} с id = {} и otherId = {}", userId, otherId);
+        List<User> userFriends = userService.getFriendsCommonOther(userId, otherId);
+        log.info("Метод GET /users/{id}/friends/common/{otherId} вернул ответ {}", userFriends);
+        return userFriends;
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> addFriend(@PathVariable("id") Long userId,
+                                @PathVariable("friendId") Long friendId) {
+        log.info("Вызван метод PUT /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
+        List<User> userFriends = userService.addFriend(userId, friendId);
+        log.info("Метод PUT /{id}/friends/{friendId} вернул ответ {}", userFriends);
+        return userFriends;
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFriend(@PathVariable("id") Long userId,
+                             @PathVariable("friendId") Long friendId) {
+        log.info("Вызван метод DELETE /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
+        userService.removeFriend(userId, friendId);
+        log.info("Метод DELETE /{id}/friends/{friendId} успешно выполнен");
+    }
+
 }

@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.exception.handler;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Data
+@RequiredArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse {
-    private String message;
+    private final String message;
     private List<String> errors;
 }
