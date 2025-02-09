@@ -71,7 +71,7 @@ public class FilmService {
         log.info("Get Popular Films");
         List<Film> popularFilms = repository.getAll()
                 .stream()
-                .filter(film -> film.getLikes()>0)
+                .filter(film -> film.getLikes() > 0)
                 .sorted((o1, o2) -> Math.toIntExact(o2.getLikes() - o1.getLikes()))
                 .collect(Collectors.toList());
         if (popularFilms.size() < count) {
