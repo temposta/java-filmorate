@@ -53,7 +53,7 @@ public class ExceptionApiHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> dataIntegrityViolationException(DataIntegrityViolationException ex) {
         log.error(ex.getMessage());
         return Map.of("message", "DataIntegrityViolationException");

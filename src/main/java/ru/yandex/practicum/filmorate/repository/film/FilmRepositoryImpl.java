@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.film;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -47,7 +48,7 @@ public class FilmRepositoryImpl implements FilmRepository {
         Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
         entity.setId(id);
         Set<Genre> genres = entity.getGenres();
-        updateGenresOnFilmId(genres, id);
+        if(genres != null && !genres.isEmpty()) updateGenresOnFilmId(genres, id);
         return entity;
     }
 
@@ -76,7 +77,7 @@ public class FilmRepositoryImpl implements FilmRepository {
         jdbc.getJdbcOperations().update(sqlDeleteGenres,
                 new MapSqlParameterSource().addValue("id", id));
         Set<Genre> genres = entity.getGenres();
-        updateGenresOnFilmId(genres, id);
+        if (genres != null && !genres.isEmpty()) updateGenresOnFilmId(genres, id);
         return entity;
     }
 
@@ -149,7 +150,7 @@ public class FilmRepositoryImpl implements FilmRepository {
         return film;
     }
 
-    private void updateGenresOnFilmId(Set<Genre> genres, Long id) {
+    private void updateGenresOnFilmId(@NotNull Set<Genre> genres, Long id) {
         if (!genres.isEmpty()) {
             String sqlGenres = """
                     INSERT INTO FILMGENRES (FILM_ID, GENRE_ID)
