@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +40,14 @@ public class ExceptionApiHandler {
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> sqlIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
-        return Map.of("message", ex.getMessage());
+        log.error(ex.getMessage());
+        return Map.of("message", "ConstraintViolationException");
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> emptyResultDataAccessException(EmptyResultDataAccessException ex) {
+        log.error(ex.getMessage());
+        return Map.of("message", "NotFoundException");
     }
 }
