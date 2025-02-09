@@ -48,7 +48,7 @@ public class FilmRepositoryImpl implements FilmRepository {
         Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
         entity.setId(id);
         Set<Genre> genres = entity.getGenres();
-        if(genres != null && !genres.isEmpty()) updateGenresOnFilmId(genres, id);
+        if (genres != null && !genres.isEmpty()) updateGenresOnFilmId(genres, id);
         return entity;
     }
 
