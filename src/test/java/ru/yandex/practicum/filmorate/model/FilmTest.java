@@ -25,7 +25,7 @@ class FilmTest {
     @Test
     @DisplayName("проверка валидации поля Description")
     void testDescriptionValidation() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setDescription("a".repeat(210));
         film.setDuration(10);
         film.setName("name");
@@ -38,7 +38,7 @@ class FilmTest {
     @Test
     @DisplayName("проверка валидации поля Duration")
     void testDurationValidation() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setDescription("a".repeat(10));
         film.setDuration(-10);
         film.setName("name");
@@ -51,7 +51,7 @@ class FilmTest {
     @Test
     @DisplayName("проверка валидации поля Name")
     void testNameValidation() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setDescription("a".repeat(10));
         film.setDuration(10);
         film.setName(" ");
@@ -64,7 +64,7 @@ class FilmTest {
     @Test
     @DisplayName("проверка валидации поля ReleaseDate")
     void testReleaseDateValidation() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setDescription("a".repeat(10));
         film.setDuration(10);
         film.setName("name");

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 
 import static ru.yandex.practicum.filmorate.controller.exception.ExceptionsResponseGenerator.getResponse;
@@ -33,5 +34,11 @@ public class ExceptionApiHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> nullPointerException(NullPointerException ex) {
         return getResponse(ex, log);
+    }
+
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> sqlIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
+        return Map.of("message", ex.getMessage());
     }
 }

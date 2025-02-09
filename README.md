@@ -66,3 +66,7 @@ Template repository for Filmorate project.
 
 ![Скриншот диаграммы базы данных для проекта filmorate](erd_db_filmorate.png)
 
+### Техническое задание (спринт № 12)
+
+## 
+

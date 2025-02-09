@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validators.FilmIDExists;
-import ru.yandex.practicum.filmorate.validators.UserIDExists;
 
 import java.util.List;
 
@@ -73,13 +72,13 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Film addLike(@PathVariable @FilmIDExists long id, @PathVariable @UserIDExists long userId) {
-        return filmService.addLike(id, userId);
+    public void addLike(@PathVariable @Positive long id, @PathVariable @Positive long userId) {
+        filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Film deleteLike(@PathVariable @FilmIDExists long id, @PathVariable @UserIDExists long userId) {
-        return filmService.deleteLike(id, userId);
+    public void deleteLike(@PathVariable @Positive long id, @PathVariable @Positive long userId) {
+        filmService.deleteLike(id, userId);
     }
 }

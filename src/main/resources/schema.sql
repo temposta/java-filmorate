@@ -1,51 +1,67 @@
-CREATE TABLE IF NOT EXISTS genre
+create table if not exists GENRES
 (
-    genre_id integer         NOT NULL,
-    name     character varying NOT NULL,
-    PRIMARY KEY (genre_id)
+    GENRE_ID INTEGER           not null primary key,
+    NAME     CHARACTER VARYING not null
 );
 
-COMMENT ON TABLE genre
-    IS 'Таблица жанров фильмов';
+comment on table GENRES is 'Таблица жанров фильмов';
 
-CREATE TABLE IF NOT EXISTS film_genre
+create table if not exists MPARATINGS
 (
-    film_id  integer NOT NULL,
-    genre_id integer NOT NULL,
-    CONSTRAINT common_constraint UNIQUE (film_id, genre_id)
+    MPA_ID      INTEGER      not null
+        primary key,
+    NAME        CHARACTER(5) not null,
+    DESCRIPTION CHARACTER VARYING
 );
 
-COMMENT ON TABLE film_genre
-    IS 'Перечень жанров, относящихся к конкретному фильму';
+comment on table MPARATINGS is 'Рейтинг Ассоциации кинокомпаний ' ||
+                               '(англ. Motion Picture Association, сокращённо МРА)';
 
-CREATE TABLE IF NOT EXISTS mpa
+create table if not exists FILMS
 (
-    mpa_id      integer  NOT NULL,
-    name        character(5) NOT NULL,
-    description character varying,
-    PRIMARY KEY (mpa_id)
+    FILM_ID      INTEGER auto_increment primary key,
+    NAME         CHARACTER VARYING not null,
+    DESCRIPTION  CHARACTER VARYING(200),
+    RELEASE_DATE DATE,
+    DURATION     INTEGER,
+    MPA_ID       INTEGER,
+    FOREIGN KEY (MPA_ID) REFERENCES MPARATINGS (MPA_ID)
 );
 
-COMMENT ON TABLE mpa
-    IS 'Рейтинг Ассоциации кинокомпаний (англ. Motion Picture Association, сокращённо МРА)';
+comment on table FILMS is 'Фильмы';
 
-CREATE TABLE IF NOT EXISTS movie
+create table if not exists FILMGENRES
 (
-    film_id      integer            NOT NULL,
-    name         character varying NOT NULL,
-    description  character varying(200),
-    release_date date,
-    duration     integer,
-    mpa_id       integer,
-    PRIMARY KEY (film_id)
+    FILM_ID  INTEGER not null,
+    GENRE_ID INTEGER not null,
+    primary key (FILM_ID, GENRE_ID),
+    FOREIGN KEY (FILM_ID) REFERENCES FILMS (FILM_ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (GENRE_ID) REFERENCES GENRES (GENRE_ID)
+        ON UPDATE CASCADE
 );
 
-COMMENT ON TABLE movie
-    IS 'Фильмы';
+comment on table FILMGENRES is 'Перечень жанров, относящихся к конкретному фильму';
 
-CREATE TABLE IF NOT EXISTS likes
+create table if not exists USERS
 (
-    film_id integer NOT NULL,
-    user_id integer NOT NULL,
-    CONSTRAINT common UNIQUE (film_id, user_id)
+    USER_ID    INTEGER auto_increment primary key,
+    EMAIL      CHARACTER VARYING not null unique,
+    LOGIN      CHARACTER VARYING,
+    NAME       CHARACTER VARYING,
+    BIRTH_DATE DATE
+);
+
+create table if not exists LIKES
+(
+    FILM_ID INTEGER not null,
+    USER_ID INTEGER not null,
+    primary key (FILM_ID, USER_ID),
+    FOREIGN KEY (FILM_ID) REFERENCES FILMS (FILM_ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (USER_ID) REFERENCES USERS (USER_ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
