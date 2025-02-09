@@ -10,11 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FilmMapExtractor implements ResultSetExtractor<Map<Long, Film>> {
+
     @Override
     public Map<Long, Film> extractData(ResultSet rs) throws DataAccessException, SQLException {
         Map<Long, Film> filmMap = new HashMap<>();
         Film film;
-        while (rs.next()){
+        while (rs.next()) {
             film = Film.builder()
                     .id(rs.getLong("F.ID"))
                     .name(rs.getString("F.NAME"))
