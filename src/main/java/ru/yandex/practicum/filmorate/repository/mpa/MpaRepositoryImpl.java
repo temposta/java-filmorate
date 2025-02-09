@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.mpa;
 
 import lombok.AllArgsConstructor;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -17,12 +16,18 @@ public class MpaRepositoryImpl implements MpaRepository {
     @Override
     public List<Mpa> getAll() {
         String sql = "SELECT MPA_ID, NAME FROM MPARATINGS";
-        return jdbc.query(sql, new BeanPropertyRowMapper<>(Mpa.class));
+        return jdbc.query(sql, (rs, rowNum) -> Mpa.builder()
+                .id(rs.getLong("MPA_ID"))
+                .name(rs.getString("NAME").trim())
+                .build());
     }
 
     @Override
     public Mpa findById(long id) {
         String sql = "SELECT MPA_ID, NAME FROM MPARATINGS WHERE MPA_ID = :id";
-        return jdbc.getJdbcOperations().queryForObject(sql, new BeanPropertyRowMapper<>(Mpa.class), id);
+        return jdbc.getJdbcOperations().queryForObject(sql, (rs, rowNum) -> Mpa.builder()
+                .id(rs.getLong("MPA_ID"))
+                .name(rs.getString("NAME").trim())
+                .build(), id);
     }
 }
