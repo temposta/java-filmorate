@@ -26,7 +26,7 @@ public class Film {
     @Positive
     private int duration;
     private Long likes;
-    private Set<String> genres;
-    private String mpa;
+    private Set<Genre> genres;
+    private Mpa mpa;
 
 }

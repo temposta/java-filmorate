@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.repository.film;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,12 +18,15 @@ public class FilmMapExtractor implements ResultSetExtractor<Map<Long, Film>> {
         Film film;
         while (rs.next()) {
             film = Film.builder()
-                    .id(rs.getLong("F.ID"))
-                    .name(rs.getString("F.NAME"))
-                    .description(rs.getString("F.DESCRIPTION"))
+                    .id(rs.getLong("ID"))
+                    .name(rs.getString("F_NAME"))
+                    .description(rs.getString("DESCRIPTION"))
                     .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
                     .duration(rs.getInt("DURATION"))
-                    .mpa("M.NAME")
+                    .mpa(Mpa.builder()
+                            .id(rs.getLong("MPA_ID"))
+                            .name(rs.getString("M_NAME").trim())
+                            .build())
                     .build();
             filmMap.put(film.getId(), film);
         }
