@@ -113,8 +113,8 @@ public class FilmRepositoryImpl implements FilmRepository {
                 FROM FILMS AS F
                 LEFT JOIN MPARATINGS M on F.MPA_ID = M.MPA_ID
                 LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID
-                WHERE COUNT(L.USER_ID) IS NOT NULL
                 GROUP BY F.FILM_ID
+                HAVING COUNT(L.USER_ID) IS NOT NULL
                 ORDER BY LIKES DESC
                 LIMIT :count ;""";
         Optional<Map<Long, Film>> films = Optional.ofNullable(jdbc.query(sqlGetFilms,
