@@ -126,12 +126,12 @@ public class FilmRepositoryImpl implements FilmRepository {
     @Override
     public Film findById(long id) {
         final String sqlGetFilms = """
-                SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, RELEASE_DATE,
-                   DURATION, M.NAME, COUNT(L.USER_ID) AS LIKES
+                SELECT F.FILM_ID ID, F.NAME F_NAME, F.DESCRIPTION, RELEASE_DATE,
+                   DURATION, F.MPA_ID, M.NAME M_NAME, COUNT(L.USER_ID) AS LIKES
                 FROM FILMS AS F
-                WHERE F.FILM_ID = :id
                 LEFT JOIN MPARATINGS M on F.MPA_ID = M.MPA_ID
                 LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID
+                WHERE F.FILM_ID = :id
                 GROUP BY F.FILM_ID;""";
         SqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
         Optional<Map<Long, Film>> filmOpt = Optional.ofNullable(jdbc.query(sqlGetFilms, params, new FilmMapExtractor()));
@@ -140,8 +140,8 @@ public class FilmRepositoryImpl implements FilmRepository {
         final String sqlGetFilmGenres = """
                 SELECT FG.GENRE_ID, NAME
                 FROM FILMGENRES AS FG
-                WHERE FG.FILM_ID = :id
-                         LEFT JOIN PUBLIC.GENRES G on FG.GENRE_ID = G.GENRE_ID;
+                         LEFT JOIN PUBLIC.GENRES G on FG.GENRE_ID = G.GENRE_ID
+                WHERE FG.FILM_ID = :id;
                 """;
         SqlParameterSource param = new MapSqlParameterSource().addValue("id", id);
         jdbc.query(sqlGetFilmGenres, param, rs -> {
