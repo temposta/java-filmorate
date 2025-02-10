@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -138,18 +139,25 @@ public class FilmRepositoryImpl implements FilmRepository {
         Film film = filmOpt.map(filmMap -> filmMap.get(id)).orElse(null);
         if (film == null) return null;
         final String sqlGetFilmGenres = """
-                SELECT FG.GENRE_ID, NAME
+                SELECT FILM_ID, FG.GENRE_ID ID, NAME
                 FROM FILMGENRES AS FG
-                         LEFT JOIN PUBLIC.GENRES G on FG.GENRE_ID = G.GENRE_ID
-                WHERE FG.FILM_ID = :id;
+                         LEFT JOIN GENRES G on FG.GENRE_ID = G.GENRE_ID
+                WHERE FILM_ID = :id;
                 """;
         SqlParameterSource param = new MapSqlParameterSource().addValue("id", id);
-        jdbc.query(sqlGetFilmGenres, param, rs -> {
-            while (rs.next()) film.getGenres().add(Genre.builder()
-                    .id(rs.getLong("FG.GENRE_ID"))
-                    .name(rs.getString("NAME").trim())
-                    .build());
+        Set<Genre> genres;
+        genres = jdbc.query(sqlGetFilmGenres, param, rs -> {
+            Set<Genre> g = new HashSet<>();
+            while (rs.next()) {
+                Genre genre = Genre.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name").trim())
+                        .build();
+                g.add(genre);
+            }
+            return g;
         });
+        film.setGenres(genres);
         return film;
     }
 
