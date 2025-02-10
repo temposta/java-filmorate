@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.film.like.LikeRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -69,14 +68,6 @@ public class FilmService {
 
     public List<Film> getPopularFilms(int count) {
         log.info("Get Popular Films");
-        List<Film> popularFilms = repository.getAll()
-                .stream()
-                .filter(film -> film.getLikes() > 0)
-                .sorted((o1, o2) -> Math.toIntExact(o2.getLikes() - o1.getLikes()))
-                .collect(Collectors.toList());
-        if (popularFilms.size() < count) {
-            return popularFilms;
-        }
-        return popularFilms.subList(0, count);
+        return repository.getPopular(count);
     }
 }

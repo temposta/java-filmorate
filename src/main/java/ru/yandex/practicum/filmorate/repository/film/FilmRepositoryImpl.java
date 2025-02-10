@@ -101,23 +101,26 @@ public class FilmRepositoryImpl implements FilmRepository {
                 GROUP BY F.FILM_ID;""";
         Optional<Map<Long, Film>> films = Optional.ofNullable(jdbc.query(sqlGetFilms, new FilmMapExtractor()));
 
-        if (films.isEmpty()) return List.of();
+        return getFilmsPlusGenres(films);
+    }
 
-        final String sqlGetFilmGenres = """
-                SELECT FILM_ID, FG.GENRE_ID GENRE_ID, NAME
-                FROM FILMGENRES AS FG
-                         LEFT JOIN PUBLIC.GENRES G on FG.GENRE_ID = G.GENRE_ID;
-                """;
-        Optional<Map<Long, Set<Genre>>> genres = Optional.ofNullable(jdbc.query(sqlGetFilmGenres, new FilmGenresMapExtractor()));
+    @Override
+    public List<Film> getPopular(int count) {
+        final String sqlGetFilms = """
+                SELECT F.FILM_ID ID, F.NAME F_NAME, F.DESCRIPTION, RELEASE_DATE,
+                   DURATION, F.MPA_ID, M.NAME M_NAME, COUNT(L.USER_ID) AS LIKES
+                FROM FILMS AS F
+                LEFT JOIN MPARATINGS M on F.MPA_ID = M.MPA_ID
+                LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID
+                WHERE COUNT(L.USER_ID) IS NOT NULL
+                GROUP BY F.FILM_ID
+                ORDER BY LIKES DESC
+                LIMIT :count ;""";
+        Optional<Map<Long, Film>> films = Optional.ofNullable(jdbc.query(sqlGetFilms,
+                new MapSqlParameterSource("count", count),
+                new FilmMapExtractor()));
 
-        if (genres.isEmpty()) return new ArrayList<>(films.get().values());
-        Map<Long, Film> currentFilms = films.get();
-        Map<Long, Set<Genre>> currentGenres = genres.get();
-        for (Long filmId : currentGenres.keySet()) {
-            Film film = currentFilms.get(filmId);
-            film.setGenres(currentGenres.get(filmId));
-        }
-        return new ArrayList<>(currentFilms.values());
+        return getFilmsPlusGenres(films);
     }
 
     @Override
@@ -148,6 +151,26 @@ public class FilmRepositoryImpl implements FilmRepository {
                     .build());
         });
         return film;
+    }
+
+    private List<Film> getFilmsPlusGenres(Optional<Map<Long, Film>> films) {
+        if (films.isEmpty()) return List.of();
+
+        final String sqlGetFilmGenres = """
+                SELECT FILM_ID, FG.GENRE_ID GENRE_ID, NAME
+                FROM FILMGENRES AS FG
+                         LEFT JOIN PUBLIC.GENRES G on FG.GENRE_ID = G.GENRE_ID;
+                """;
+        Optional<Map<Long, Set<Genre>>> genres = Optional.ofNullable(jdbc.query(sqlGetFilmGenres, new FilmGenresMapExtractor()));
+
+        if (genres.isEmpty()) return new ArrayList<>(films.get().values());
+        Map<Long, Film> currentFilms = films.get();
+        Map<Long, Set<Genre>> currentGenres = genres.get();
+        for (Long filmId : currentGenres.keySet()) {
+            Film film = currentFilms.get(filmId);
+            film.setGenres(currentGenres.get(filmId));
+        }
+        return new ArrayList<>(currentFilms.values());
     }
 
     private void updateGenresOnFilmId(@NotNull Set<Genre> genres, Long id) {
