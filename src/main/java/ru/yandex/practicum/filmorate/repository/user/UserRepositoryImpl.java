@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -101,6 +103,23 @@ public class UserRepositoryImpl implements UserRepository {
                     return count;
                 });
         if (i == 0) throw new EmptyResultDataAccessException("User with userId " + id + " not found", 1);
+    }
+
+    @Override
+    public List<User> getListUsers(Set<Long> ids) {
+        String sql = """
+                SELECT USER_ID, EMAIL, LOGIN, NAME, BIRTH_DATE
+                FROM USERS
+                WHERE USER_ID in (:ids);
+                """;
+        List<User> users;
+        users = jdbc.query(sql, new MapSqlParameterSource()
+                        .addValue("ids", ids
+                                .stream()
+                                .map(String::valueOf)
+                                .collect(Collectors.joining(","))),
+                getUserRowMapper());
+        return users;
     }
 
     private static RowMapper<User> getUserRowMapper() {

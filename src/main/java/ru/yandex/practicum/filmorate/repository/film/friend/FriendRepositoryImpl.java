@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.film.friend;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -39,9 +38,7 @@ public class FriendRepositoryImpl implements FriendRepository {
         String sql = """
                 DELETE FROM friends WHERE user_id = :user_id AND friend_id = :friend_id;
                 """;
-        int[] i = batchUpdateFriends(userId, friendId, sql);
-        if (i[0] == 0) throw new DataIntegrityViolationException("Not found");
-
+        batchUpdateFriends(userId, friendId, sql);
     }
 
     @Override
@@ -107,7 +104,7 @@ public class FriendRepositoryImpl implements FriendRepository {
         });
     }
 
-    private int[] batchUpdateFriends(Long userId, Long friendId, String sql) {
+    private void batchUpdateFriends(Long userId, Long friendId, String sql) {
         Map<String, Object> params = new HashMap<>();
         SqlParameterSource[] ps = new SqlParameterSource[2];
         ps[0] = new MapSqlParameterSource(params)
@@ -116,7 +113,6 @@ public class FriendRepositoryImpl implements FriendRepository {
         ps[1] = new MapSqlParameterSource(params)
                 .addValue("user_id", friendId)
                 .addValue("friend_id", userId);
-        final int[] i = jdbc.batchUpdate(sql, ps);
-        return i;
+        jdbc.batchUpdate(sql, ps);
     }
 }

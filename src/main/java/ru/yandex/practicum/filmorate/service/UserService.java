@@ -83,20 +83,20 @@ public class UserService {
         log.info("Friend deleted: {} - Finishing", friendId);
     }
 
-    public Set<Long> getFriends(long id) {
+    public List<User> getFriends(long id) {
         log.info("Getting friends: {} - Starting", id);
         repository.checkUser(id);
         Set<Long> friends = friendRepository.getFriendIds(id);
         log.info("Friends found: {} - Finishing", id);
-        return friends;
+        return repository.getListUsers(friends);
     }
 
-    public Set<Long> getFriendsCommon(long id, long otherId) {
+    public List<User> getFriendsCommon(long id, long otherId) {
         log.info("Getting common friends: {} & {} - Starting", id, otherId);
         repository.checkUser(id);
         repository.checkUser(otherId);
         Set<Long> commonFriends = friendRepository.getCommonFriendIds(id, otherId);
         log.info("Common friends found: {} & {} - Finishing", id, otherId);
-        return commonFriends;
+        return repository.getListUsers(commonFriends);
     }
 }

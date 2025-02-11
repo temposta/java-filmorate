@@ -121,9 +121,7 @@ public class FilmRepositoryImpl implements FilmRepository {
                 new MapSqlParameterSource("count", count),
                 new FilmMapExtractor()));
 
-        return getFilmsPlusGenres(films)
-                .stream()
-                .sorted((o1, o2) -> (int) (o1.getRate() - o2.getRate())).toList();
+        return getFilmsPlusGenres(films);
     }
 
     @Override
