@@ -23,6 +23,7 @@ public class FilmMapExtractor implements ResultSetExtractor<Map<Long, Film>> {
                     .description(rs.getString("DESCRIPTION"))
                     .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
                     .duration(rs.getInt("DURATION"))
+                    .rate(rs.getLong("LIKES"))
                     .mpa(Mpa.builder()
                             .id(rs.getLong("MPA_ID"))
                             .name(rs.getString("M_NAME").trim())

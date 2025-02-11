@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.film.friend;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -38,7 +39,8 @@ public class FriendRepositoryImpl implements FriendRepository {
         String sql = """
                 DELETE FROM friends WHERE user_id = :user_id AND friend_id = :friend_id;
                 """;
-        batchUpdateFriends(userId, friendId, sql);
+        int[] i = batchUpdateFriends(userId, friendId, sql);
+        if (i[0] == 0) throw new DataIntegrityViolationException("Not found");
 
     }
 
@@ -62,13 +64,6 @@ public class FriendRepositoryImpl implements FriendRepository {
 
     @Override
     public Set<Long> getCommonFriendIds(Long user1, Long user2) {
-        /*
-filmorate=# select friend_id, count(friend_id)
-filmorate-# from friends
-filmorate-# where user_id in (1,4)
-filmorate-# group by friend_id
-filmorate-# having count(friend_id)>1;
-        */
         String sql = """
                 SELECT friend_id, count(friend_id) as count
                 FROM friends
@@ -112,7 +107,7 @@ filmorate-# having count(friend_id)>1;
         });
     }
 
-    private void batchUpdateFriends(Long userId, Long friendId, String sql) {
+    private int[] batchUpdateFriends(Long userId, Long friendId, String sql) {
         Map<String, Object> params = new HashMap<>();
         SqlParameterSource[] ps = new SqlParameterSource[2];
         ps[0] = new MapSqlParameterSource(params)
@@ -121,6 +116,7 @@ filmorate-# having count(friend_id)>1;
         ps[1] = new MapSqlParameterSource(params)
                 .addValue("user_id", friendId)
                 .addValue("friend_id", userId);
-        jdbc.batchUpdate(sql, ps);
+        final int[] i = jdbc.batchUpdate(sql, ps);
+        return i;
     }
 }

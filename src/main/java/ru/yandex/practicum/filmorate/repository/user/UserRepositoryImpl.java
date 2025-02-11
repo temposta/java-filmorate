@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.repository.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -32,16 +34,7 @@ public class UserRepositoryImpl implements UserRepository {
                 INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTH_DATE)
                 VALUES ( :email, :login, :name, :birthDate );
                 """;
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("email", entity.getEmail());
-        params.addValue("login", entity.getLogin());
-        String name = entity.getName();
-        if (name != null) params.addValue("name", name);
-        else {
-            params.addValue("name", entity.getLogin());
-            entity.setName(entity.getLogin());
-        }
-        params.addValue("birthDate", entity.getBirthday());
+        MapSqlParameterSource params = getMapSqlParameterSourceFromUser(entity);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(sql, params, keyHolder);
         entity.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
@@ -58,18 +51,9 @@ public class UserRepositoryImpl implements UserRepository {
                 BIRTH_DATE = :birthDate
                 WHERE USER_ID = :userId;
                 """;
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("email", entity.getEmail());
-        params.addValue("login", entity.getLogin());
-        String name = entity.getName();
-        if (name != null) params.addValue("name", name);
-        else {
-            params.addValue("name", entity.getLogin());
-            entity.setName(entity.getLogin());
-        }
-        params.addValue("birthDate", entity.getBirthday());
-        params.addValue("userId", entity.getId());
-        jdbc.update(sql, params);
+        final MapSqlParameterSource params = getMapSqlParameterSourceFromUser(entity);
+        int i = jdbc.update(sql, params);
+        if (i == 0) throw new EmptyResultDataAccessException("User with userId " + entity.getId() + " not found", 1);
         return entity;
     }
 
@@ -78,7 +62,10 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = """
                 DELETE FROM USERS WHERE USER_ID = :userId;
                 """;
-        jdbc.update(sql, new MapSqlParameterSource().addValue("userId", entity.getId()));
+        int i = jdbc.update(sql,
+                new MapSqlParameterSource()
+                        .addValue("userId", entity.getId()));
+        if (i == 0) throw new EmptyResultDataAccessException("User with userId " + entity.getId() + " not found", 1);
         return entity;
     }
 
@@ -88,13 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
                 SELECT USER_ID, EMAIL, LOGIN, NAME, BIRTH_DATE
                 FROM USERS;
                 """;
-        return jdbc.query(sql, (rs, rowNum) -> User.builder()
-                .id(rs.getLong("USER_ID"))
-                .email(rs.getString("EMAIL"))
-                .login(rs.getString("LOGIN"))
-                .name(rs.getString("NAME"))
-                .birthday(rs.getDate("BIRTH_DATE").toLocalDate())
-                .build());
+        return jdbc.query(sql, getUserRowMapper());
     }
 
     @Override
@@ -107,12 +88,32 @@ public class UserRepositoryImpl implements UserRepository {
 
         return jdbc.queryForObject(sql,
                 new MapSqlParameterSource().addValue("userId", id),
-                (rs, rowNum) -> User.builder()
-                        .id(rs.getLong("USER_ID"))
-                        .email(rs.getString("EMAIL"))
-                        .login(rs.getString("LOGIN"))
-                        .name(rs.getString("NAME"))
-                        .birthday(rs.getDate("BIRTH_DATE").toLocalDate())
-                        .build());
+                getUserRowMapper());
+    }
+
+    private static RowMapper<User> getUserRowMapper() {
+        return (rs, rowNum) -> User.builder()
+                .id(rs.getLong("USER_ID"))
+                .email(rs.getString("EMAIL"))
+                .login(rs.getString("LOGIN"))
+                .name(rs.getString("NAME"))
+                .birthday(rs.getDate("BIRTH_DATE").toLocalDate())
+                .build();
+    }
+
+    private static MapSqlParameterSource getMapSqlParameterSourceFromUser(User entity) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("email", entity.getEmail());
+        params.addValue("login", entity.getLogin());
+        String name = entity.getName();
+        if (name != null) params.addValue("name", name);
+        else {
+            params.addValue("name", entity.getLogin());
+            entity.setName(entity.getLogin());
+        }
+        params.addValue("birthDate", entity.getBirthday());
+        Long id = entity.getId();
+        if (id != null) params.addValue("userId", id);
+        return params;
     }
 }
