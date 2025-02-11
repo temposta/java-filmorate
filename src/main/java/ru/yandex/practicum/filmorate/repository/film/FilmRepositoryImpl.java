@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +123,24 @@ public class FilmRepositoryImpl implements FilmRepository {
                 new MapSqlParameterSource("count", count),
                 new FilmMapExtractor()));
 
-        return getFilmsPlusGenres(films);
+        return getFilmsPlusGenres(films).stream()
+                .sorted(Comparator.comparingLong(Film::getRate).reversed())
+                .toList();
+    }
+
+    @Override
+    public void checkFilm(Long id) {
+        String sql = """
+                SELECT FILM_ID FROM FILMS WHERE FILM_ID = :id;
+                """;
+        Integer i = jdbc.query(sql,
+                new MapSqlParameterSource().addValue("id", id),
+                rs -> {
+                    int count = 0;
+                    while (rs.next()) count++;
+                    return count;
+                });
+        if (i == 0) throw new EmptyResultDataAccessException("Film with filmId " + id + " not found", 1);
     }
 
     @Override
@@ -169,13 +188,16 @@ public class FilmRepositoryImpl implements FilmRepository {
                 FROM FILMGENRES AS FG
                          LEFT JOIN PUBLIC.GENRES G on FG.GENRE_ID = G.GENRE_ID;
                 """;
-        Optional<Map<Long, Set<Genre>>> genres = Optional.ofNullable(jdbc.query(sqlGetFilmGenres, new FilmGenresMapExtractor()));
+
+        Optional<Map<Long, Set<Genre>>> genres = Optional.ofNullable(jdbc.query(sqlGetFilmGenres,
+                 new FilmGenresMapExtractor()));
 
         if (genres.isEmpty()) return new ArrayList<>(films.get().values());
         Map<Long, Film> currentFilms = films.get();
         Map<Long, Set<Genre>> currentGenres = genres.get();
         for (Long filmId : currentGenres.keySet()) {
             Film film = currentFilms.get(filmId);
+            if (film == null) continue;
             film.setGenres(currentGenres.get(filmId));
         }
         return new ArrayList<>(currentFilms.values());

@@ -106,13 +106,13 @@ public class FriendRepositoryImpl implements FriendRepository {
 
     private void batchUpdateFriends(Long userId, Long friendId, String sql) {
         Map<String, Object> params = new HashMap<>();
-        SqlParameterSource[] ps = new SqlParameterSource[2];
+        SqlParameterSource[] ps = new SqlParameterSource[1];
         ps[0] = new MapSqlParameterSource(params)
                 .addValue("user_id", userId)
                 .addValue("friend_id", friendId);
-        ps[1] = new MapSqlParameterSource(params)
-                .addValue("user_id", friendId)
-                .addValue("friend_id", userId);
+//        ps[1] = new MapSqlParameterSource(params)
+//                .addValue("user_id", friendId)
+//                .addValue("friend_id", userId);
         jdbc.batchUpdate(sql, ps);
     }
 }

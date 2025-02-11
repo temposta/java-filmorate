@@ -87,6 +87,7 @@ public class UserService {
         log.info("Getting friends: {} - Starting", id);
         repository.checkUser(id);
         Set<Long> friends = friendRepository.getFriendIds(id);
+        if (friends.isEmpty()) return List.of();
         log.info("Friends found: {} - Finishing", id);
         return repository.getListUsers(friends);
     }
@@ -96,6 +97,7 @@ public class UserService {
         repository.checkUser(id);
         repository.checkUser(otherId);
         Set<Long> commonFriends = friendRepository.getCommonFriendIds(id, otherId);
+        if (commonFriends.isEmpty()) return List.of();
         log.info("Common friends found: {} & {} - Finishing", id, otherId);
         return repository.getListUsers(commonFriends);
     }

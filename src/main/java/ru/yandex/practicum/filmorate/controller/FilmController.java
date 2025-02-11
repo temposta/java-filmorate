@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.validators.FilmIDExists;
 
 import java.util.List;
 
@@ -66,7 +65,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Film getFilmById(@PathVariable @FilmIDExists long id) {
+    public Film getFilmById(@PathVariable @Positive long id) {
         return filmService.getFilmById(id);
     }
 

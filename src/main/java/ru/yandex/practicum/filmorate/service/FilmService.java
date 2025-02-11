@@ -30,6 +30,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         log.info("Update Film: {} - Started", film);
+        repository.checkFilm(film.getId());
         Film updatedFilm = repository.update(film);
         log.info("Update Film: {} - Updated", film);
         return updatedFilm;
@@ -42,6 +43,7 @@ public class FilmService {
 
     public Film deleteFilm(Film film) {
         log.info("Delete Film: {} - Started", film);
+        repository.checkFilm(film.getId());
         Film deletedFilm = repository.delete(film);
         log.info("Delete Film: {} - Deleted", film);
         return deletedFilm;

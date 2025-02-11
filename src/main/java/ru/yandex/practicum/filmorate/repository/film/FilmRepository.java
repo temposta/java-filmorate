@@ -9,4 +9,6 @@ public interface FilmRepository extends Repository<Film> {
 
     List<Film> getPopular(int count);
 
+    void checkFilm(Long id);
+
 }
