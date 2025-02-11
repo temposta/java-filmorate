@@ -5,4 +5,6 @@ import ru.yandex.practicum.filmorate.repository.Repository;
 
 public interface UserRepository extends Repository<User> {
 
+    void checkUser(Long id);
+
 }

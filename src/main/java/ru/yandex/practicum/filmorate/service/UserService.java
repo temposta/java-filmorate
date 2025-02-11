@@ -32,7 +32,7 @@ public class UserService {
 
     public User updateUser(User user) {
         log.info("Updating user: {} - Starting", user);
-//        checkUserId(user.getId());
+        repository.checkUser(user.getId());
         User updatedUser = repository.update(user);
         log.info("User updated: {} - Finishing", user);
         return updatedUser;
@@ -45,6 +45,7 @@ public class UserService {
 
     public User deleteUser(User user) {
         log.info("Deleting user: {} - Starting", user);
+        repository.checkUser(user.getId());
         User deletedUser = repository.delete(user);
         log.info("User deleted: {} - Finishing", user);
         return deletedUser;
@@ -52,39 +53,39 @@ public class UserService {
 
     public User getUserById(long id) {
         log.info("Getting user by id: {} - Starting", id);
+        repository.checkUser(id);
         User foundUser = repository.findById(id);
-        if (foundUser == null) {
-            throw new DataIntegrityViolationException("User not found");
-        }
         log.info("User found: {} - Finishing", id);
         return foundUser;
     }
 
     public void addFriend(long id, long friendId) {
         log.info("Adding friend to userId: {} - Starting", id);
+        repository.checkUser(id);
         if (id == friendId) {
             log.info("FriendID == UserID : {} - Finishing without adding", id);
             throw new DataIntegrityViolationException("FriendID == UserID");
         }
+        repository.checkUser(friendId);
         friendRepository.addFriend(id, friendId);
         log.info("Friend added to userId: {} - Finishing", id);
     }
 
     public void deleteFriend(long id, long friendId) {
         log.info("Deleting friend: {} - Starting", friendId);
-//        checkUserId(id);
+        repository.checkUser(id);
         if (id == friendId) {
             log.info("FriendID == UserID : {} - Finishing without deleting", id);
             throw new DataIntegrityViolationException("FriendID == UserID");
         }
-//        checkUserId(friendId);
+        repository.checkUser(friendId);
         friendRepository.removeFriend(id, friendId);
         log.info("Friend deleted: {} - Finishing", friendId);
     }
 
     public Set<Long> getFriends(long id) {
         log.info("Getting friends: {} - Starting", id);
-//        checkUserId(id);
+        repository.checkUser(id);
         Set<Long> friends = friendRepository.getFriendIds(id);
         log.info("Friends found: {} - Finishing", id);
         return friends;
@@ -92,17 +93,10 @@ public class UserService {
 
     public Set<Long> getFriendsCommon(long id, long otherId) {
         log.info("Getting common friends: {} & {} - Starting", id, otherId);
-//        checkUserId(id);
-//        checkUserId(otherId);
+        repository.checkUser(id);
+        repository.checkUser(otherId);
         Set<Long> commonFriends = friendRepository.getCommonFriendIds(id, otherId);
         log.info("Common friends found: {} & {} - Finishing", id, otherId);
         return commonFriends;
     }
-
-//    private void checkUserId(long id) {
-//        User user = repository.findById(id);
-//        if (user == null) {
-//            throw new DataIntegrityViolationException("User with id " + id + " not found");
-//        }
-//    }
 }

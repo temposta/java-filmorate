@@ -52,8 +52,7 @@ public class UserRepositoryImpl implements UserRepository {
                 WHERE USER_ID = :userId;
                 """;
         final MapSqlParameterSource params = getMapSqlParameterSourceFromUser(entity);
-        int i = jdbc.update(sql, params);
-        if (i == 0) throw new EmptyResultDataAccessException("User with userId " + entity.getId() + " not found", 1);
+        jdbc.update(sql, params);
         return entity;
     }
 
@@ -62,10 +61,8 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = """
                 DELETE FROM USERS WHERE USER_ID = :userId;
                 """;
-        int i = jdbc.update(sql,
-                new MapSqlParameterSource()
-                        .addValue("userId", entity.getId()));
-        if (i == 0) throw new EmptyResultDataAccessException("User with userId " + entity.getId() + " not found", 1);
+        jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("userId", entity.getId()));
         return entity;
     }
 
@@ -89,6 +86,21 @@ public class UserRepositoryImpl implements UserRepository {
         return jdbc.queryForObject(sql,
                 new MapSqlParameterSource().addValue("userId", id),
                 getUserRowMapper());
+    }
+
+    @Override
+    public void checkUser(Long id) {
+        String sql = """
+                SELECT USER_ID FROM USERS WHERE USER_ID = :id;
+                """;
+        Integer i = jdbc.query(sql,
+                new MapSqlParameterSource().addValue("id", id),
+                rs -> {
+                    int count = 0;
+                    while (rs.next()) count++;
+                    return count;
+                });
+        if (i == 0) throw new EmptyResultDataAccessException("User with userId " + id + " not found", 1);
     }
 
     private static RowMapper<User> getUserRowMapper() {

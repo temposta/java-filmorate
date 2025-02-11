@@ -71,11 +71,11 @@ public class FilmRepositoryImpl implements FilmRepository {
                 .addValue("description", entity.getDescription())
                 .addValue("releaseDate", entity.getReleaseDate())
                 .addValue("duration", entity.getDuration())
-                .addValue("mpa_name", entity.getMpa());
+                .addValue("mpa_id", entity.getMpa().getId());
         jdbc.update(sql, params);
         String sqlDeleteGenres = """
-                DELETE FROM FILMGENRES WHERE FILM_ID =:id;""";
-        jdbc.getJdbcOperations().update(sqlDeleteGenres,
+                DELETE FROM FILMGENRES WHERE FILM_ID = :id ;""";
+        jdbc.update(sqlDeleteGenres,
                 new MapSqlParameterSource().addValue("id", id));
         Set<Genre> genres = entity.getGenres();
         if (genres != null && !genres.isEmpty()) updateGenresOnFilmId(genres, id);
@@ -114,14 +114,16 @@ public class FilmRepositoryImpl implements FilmRepository {
                 LEFT JOIN MPARATINGS M on F.MPA_ID = M.MPA_ID
                 LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID
                 GROUP BY F.FILM_ID
-                HAVING COUNT(L.USER_ID) IS NOT NULL
+                HAVING COUNT(L.USER_ID) > 0
                 ORDER BY LIKES DESC
                 LIMIT :count ;""";
         Optional<Map<Long, Film>> films = Optional.ofNullable(jdbc.query(sqlGetFilms,
                 new MapSqlParameterSource("count", count),
                 new FilmMapExtractor()));
 
-        return getFilmsPlusGenres(films);
+        return getFilmsPlusGenres(films)
+                .stream()
+                .sorted((o1, o2) -> (int) (o1.getRate() - o2.getRate())).toList();
     }
 
     @Override
