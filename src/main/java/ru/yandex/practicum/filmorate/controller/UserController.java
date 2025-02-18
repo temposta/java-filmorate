@@ -77,12 +77,11 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> addFriend(@PathVariable("id") Long userId,
+    public void addFriend(@PathVariable("id") Long userId,
                                 @PathVariable("friendId") Long friendId) {
         log.info("Вызван метод PUT /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
-        List<User> userFriends = userService.addFriend(userId, friendId);
-        log.info("Метод PUT /{id}/friends/{friendId} вернул ответ {}", userFriends);
-        return userFriends;
+        userService.addFriend(userId, friendId);
+        log.info("Метод PUT /{id}/friends/{friendId} успешно выполнен");
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
