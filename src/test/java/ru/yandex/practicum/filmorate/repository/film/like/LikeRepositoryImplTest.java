@@ -35,7 +35,7 @@ class LikeRepositoryImplTest {
     @Test
     @DisplayName("добавление лайка без ошибки")
     void addLike() {
-        assertDoesNotThrow(() -> repository.addLike(5L,5L));
+        assertDoesNotThrow(() -> repository.addLike(5L, 5L));
     }
 
     @Test
@@ -53,6 +53,6 @@ class LikeRepositoryImplTest {
     @Test
     @DisplayName("удаление лайка без ошибки")
     void removeLike() {
-        assertDoesNotThrow(() -> repository.removeLike(2L,2L));
+        assertDoesNotThrow(() -> repository.removeLike(2L, 2L));
     }
 }

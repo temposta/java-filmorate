@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.repository.mpa;
+package ru.yandex.practicum.filmorate.repository.genre;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -14,14 +14,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@DisplayName("тестирование MpaRepository")
-class MpaRepositoryImplTest {
+@DisplayName("тестирование GenreRepository")
+class GenreRepositoryImplTest {
 
     DataSource dataSource;
     NamedParameterJdbcOperations jdbc;
-    MpaRepository repository;
+    GenreRepository repository;
 
-    public MpaRepositoryImplTest() {
+    public GenreRepositoryImplTest() {
         dataSource = new EmbeddedDatabaseBuilder()
                 .generateUniqueName(true)
                 .setType(EmbeddedDatabaseType.H2)
@@ -31,25 +31,25 @@ class MpaRepositoryImplTest {
                 .addScript("classpath:/test-data.sql")
                 .build();
         this.jdbc = new NamedParameterJdbcTemplate(dataSource);
-        this.repository = new MpaRepositoryImpl(jdbc);
+        this.repository = new GenreRepositoryImpl(jdbc);
     }
 
     @Test
-    @DisplayName("получение списка рейтингов")
+    @DisplayName("получение списка жанров")
     void getAll() {
-        List<Mpa> mpaList = repository.getAll();
-        mpaList.forEach(System.out::println);
-        assertNotNull(mpaList);
-        assertEquals(5, mpaList.size());
+        List<Genre> genreList = repository.getAll();
+        genreList.forEach(System.out::println);
+        assertNotNull(genreList);
+        assertEquals(6, genreList.size());
     }
 
     @Test
-    @DisplayName("получение рейтинга по идентификатору")
+    @DisplayName("получение жанра по идентификатору")
     void findById() {
-        Mpa mpa = repository.findById(1L);
-        System.out.println("mpa = " + mpa);
-        assertNotNull(mpa);
-        assertEquals(1L, mpa.getId());
-        assertEquals("G", mpa.getName());
+        Genre genre = repository.findById(1L);
+        System.out.println("genre = " + genre);
+        assertNotNull(genre);
+        assertEquals(1L, genre.getId());
+        assertEquals("Комедия", genre.getName());
     }
 }
