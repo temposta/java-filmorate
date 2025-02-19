@@ -107,18 +107,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getListUsers(Set<Long> ids) {
-        String sql = """
-                SELECT USER_ID, EMAIL, LOGIN, NAME, BIRTH_DATE
-                FROM USERS
-                WHERE USER_ID in (:ids);
-                """;
+        String idsString = ids.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
+        String sql = "SELECT USER_ID, EMAIL, LOGIN, NAME, BIRTH_DATE FROM USERS WHERE USER_ID in (" +
+                     idsString + ");";
         List<User> users;
-        users = jdbc.query(sql, new MapSqlParameterSource()
-                        .addValue("ids", ids
-                                .stream()
-                                .map(String::valueOf)
-                                .collect(Collectors.joining(","))),
-                getUserRowMapper());
+        users = jdbc.query(sql, getUserRowMapper());
         return users;
     }
 

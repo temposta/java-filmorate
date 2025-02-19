@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class MpaRepositoryImplTest {
 
     DataSource dataSource;
-
     NamedParameterJdbcOperations jdbc;
     MpaRepository repository;
 
