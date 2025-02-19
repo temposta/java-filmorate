@@ -38,3 +38,19 @@ values (5,'film4', 'description4', '2000-01-13', 100, 4);
 insert into films (film_id,name, description, release_date, duration, mpa_id)
 values (6,'film5', 'description5', '2000-01-14', 150, 5);
 
+insert into likes (film_id, user_id) values (2,2);
+insert into likes (film_id, user_id) values (2,3);
+insert into likes (film_id, user_id) values (2,4);
+insert into likes (film_id, user_id) values (2,5);
+insert into likes (film_id, user_id) values (2,6);
+insert into likes (film_id, user_id) values (2,7);
+insert into likes (film_id, user_id) values (3,5);
+insert into likes (film_id, user_id) values (3,6);
+insert into likes (film_id, user_id) values (3,7);
+insert into likes (film_id, user_id) values (4,2);
+insert into likes (film_id, user_id) values (4,4);
+insert into likes (film_id, user_id) values (5,2);
+insert into likes (film_id, user_id) values (5,3);
+insert into likes (film_id, user_id) values (5,7);
+insert into likes (film_id, user_id) values (6,2);
+
