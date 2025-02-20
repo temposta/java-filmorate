@@ -14,15 +14,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RatingDbStorage implements RatingStorage {
 
-    final RatingRepository RatingRepository;
+    final RatingRepository ratingRepository;
 
     @Override
     public List<Mpa> getAll() {
-        return RatingRepository.findAll();
+        return ratingRepository.findAll();
     }
 
     @Override
     public Optional<Mpa> read(Long id) {
-        return RatingRepository.findById(id);
+        return ratingRepository.findById(id);
     }
 }
