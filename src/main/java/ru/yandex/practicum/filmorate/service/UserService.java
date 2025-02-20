@@ -26,7 +26,7 @@ public class UserService {
 
     public User create(User user) {
         user = userStorage.create(user);
-        log.info("Пользователь создан {}", user.toString());
+        log.info("Пользователь создан {}", user);
         return user;
     }
 
@@ -71,6 +71,10 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
+        if (Objects.equals(userId, friendId)) {
+            throw new ValidationException("Нельзя добавить в друзья самого себя");
+        }
+
         User user = userStorage.read(userId)
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId)));
         User friend = userStorage.read(friendId)
