@@ -54,3 +54,11 @@ insert into likes (film_id, user_id) values (5,3);
 insert into likes (film_id, user_id) values (5,7);
 insert into likes (film_id, user_id) values (6,2);
 
+insert into friends (user_id, friend_id) values (2, 3);
+insert into friends (user_id, friend_id) values (2, 6);
+insert into friends (user_id, friend_id) values (6, 2);
+insert into friends (user_id, friend_id) values (6, 5);
+insert into friends (user_id, friend_id) values (5, 2);
+insert into friends (user_id, friend_id) values (5, 3);
+insert into friends (user_id, friend_id) values (5, 4);
+insert into friends (user_id, friend_id) values (5, 6);

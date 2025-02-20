@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@DisplayName("тестирование LikeRepositoryImpl")
 class LikeRepositoryImplTest {
 
     DataSource dataSource;

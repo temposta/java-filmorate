@@ -110,9 +110,19 @@ public class FriendRepositoryImpl implements FriendRepository {
         ps[0] = new MapSqlParameterSource(params)
                 .addValue("user_id", userId)
                 .addValue("friend_id", friendId);
-//        ps[1] = new MapSqlParameterSource(params)
-//                .addValue("user_id", friendId)
-//                .addValue("friend_id", userId);
+
+        /*
+        В случае необходимости добавлять дружбу без подтверждения:
+        1. SqlParameterSource[] ps = new SqlParameterSource[2]; - инициализация 2 элементов
+        2. Раскомментировать блок кода ниже - для добавления пары в обратном порядке:
+         */
+
+        /*
+        ps[1] = new MapSqlParameterSource(params)
+                .addValue("user_id", friendId)
+                .addValue("friend_id", userId);
+        */
+
         jdbc.batchUpdate(sql, ps);
     }
 }
