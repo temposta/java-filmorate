@@ -21,7 +21,7 @@ public class RatingRepository extends BaseRepository<Mpa> {
         return findMany(FIND_ALL_QUERY);
     }
 
-    public Optional<Mpa> findById(long ratingId) {
+    public Optional<Mpa> findById(Long ratingId) {
         return findOne(FIND_BY_ID_QUERY, ratingId);
     }
 

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.validator.date.MinimumDate;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Film
@@ -29,5 +29,5 @@ public class Film {
     @PositiveOrZero(message = "Длительность не может быть меньше нуля")
     private int duration;
     private Mpa mpa;
-    private List<Genre> genres;
+    private Set<Genre> genres;
 }

@@ -38,10 +38,10 @@ public class FilmService {
         }
 
         if (film.getGenres() != null) {
+            List<Genre> genres = genreStorage.getAll();
             film.getGenres().forEach(genre -> {
                 Long id = genre.getId();
-                Optional<Genre> optionalGenre = genreStorage.read(id);
-                if (optionalGenre.isEmpty()) {
+                if (genres.stream().filter(g -> Objects.equals(g.getId(), id)).findFirst().isEmpty()) {
                     log.error(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
                     throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
                 }
@@ -49,8 +49,65 @@ public class FilmService {
         }
 
         film = filmStorage.create(film);
-        log.info("Фильм создан {}", film.toString());
+        log.info("Фильм создан {}", film);
         return film;
+    }
+
+    public Film update(Film film) throws NotFoundException {
+        if (film.getId() == null) {
+            log.error("Не указан id фильма {}", film);
+            throw new ValidationException("Id должен быть указан");
+        }
+        if (filmStorage.read(film.getId()).isEmpty()) {
+            log.error(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film);
+            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film.getId()));
+        }
+
+        Optional<Mpa> rating = ratingStorage.read(film.getMpa().getId());
+        if (rating.isEmpty()) {
+            log.error(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId()));
+            throw new NotFoundException(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId()));
+        }
+
+        if (film.getGenres() != null) {
+            List<Genre> genres = genreStorage.getAll();
+            film.getGenres().forEach(genre -> {
+                Long id = genre.getId();
+                if (genres.stream().filter(g -> Objects.equals(g.getId(), id)).findFirst().isEmpty()) {
+                    log.error(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
+                    throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
+                }
+            });
+        }
+
+        film = filmStorage.update(film);
+        log.info("Фильм обновлен {}", film);
+        return film;
+    }
+
+    private void updateRating(Film film) {
+        if (film.getMpa() != null) {
+            film.setMpa(ratingStorage.getAll().stream()
+                    .filter(o -> Objects.equals(o.getId(), film.getMpa().getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId()))));
+        }
+    }
+
+
+    private void updateGenre(Film film) {
+        if (film.getGenres() != null) {
+
+            Set<Genre> newGenres = new HashSet<>();
+            film.getGenres().forEach(g -> {
+                newGenres.add(genreStorage.getAll().stream()
+                        .filter(o -> Objects.equals(o.getId(), g.getId()))
+                        .findFirst()
+                        .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, g.getId()))));
+            });
+
+            film.setGenres(newGenres);
+        }
     }
 
     public Film read(Long id) {
@@ -64,18 +121,6 @@ public class FilmService {
 
     public void delete(Long id) {
         filmStorage.delete(id);
-    }
-
-    public Film update(Film film) throws NotFoundException {
-        if (film.getId() == null) {
-            log.error("Не указан id фильма {}", film);
-            throw new ValidationException("Id должен быть указан");
-        }
-        if (filmStorage.read(film.getId()).isEmpty()) {
-            log.error(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film);
-            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film.getId()));
-        }
-        return filmStorage.update(film);
     }
 
     public List<Film> getAll() {

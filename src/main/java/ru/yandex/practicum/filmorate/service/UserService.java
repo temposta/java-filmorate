@@ -30,7 +30,7 @@ public class UserService {
         return user;
     }
 
-    public User read(long id) {
+    public User read(Long id) {
         Optional<User> user = userStorage.read(id);
         if (user.isPresent()) {
             return user.get();
@@ -52,7 +52,7 @@ public class UserService {
         return user;
     }
 
-    public void delete(long id) {
+    public void delete(Long id) {
         userStorage.delete(id);
     }
 

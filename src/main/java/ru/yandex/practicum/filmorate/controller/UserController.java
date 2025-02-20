@@ -30,7 +30,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public User read(long id) {
+    public User read(@PathVariable("id") Long id) {
         log.info("Получен запрос на получение пользователя с идентификатором: {}", id);
         return userService.read(id);
     }
@@ -44,7 +44,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(long id) {
+    public void delete(@PathVariable("id") Long id) {
         log.info("Получен запрос на удаление фильма с пользователя: {}", id);
         userService.delete(id);
     }

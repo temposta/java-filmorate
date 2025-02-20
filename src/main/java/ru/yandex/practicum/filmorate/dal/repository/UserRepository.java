@@ -13,14 +13,14 @@ import java.util.Optional;
 @Repository
 public class UserRepository extends BaseRepository<User> {
 
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM \"user\" WHERE id = ?";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM \"user\"";
-    private static final String INSERT_QUERY = "INSERT INTO \"user\" (email, login, name, birthday) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE \"user\" SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
-    private static final String DELETE_QUERY = "DELETE FROM \"user\" WHERE id = ?";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM users";
+    private static final String INSERT_QUERY = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
 
-    private static final String FIND_FRIENDS_BY_ID_QUERY = "SELECT * FROM \"user\" WHERE id IN (SELECT friend_id FROM friendship WHERE user_id = ?)";
-    private static final String FIND_COMMON_FRIENDS_QUERY = "SELECT * FROM \"user\" " +
+    private static final String FIND_FRIENDS_BY_ID_QUERY = "SELECT * FROM users WHERE id IN (SELECT friend_id FROM friendship WHERE user_id = ?)";
+    private static final String FIND_COMMON_FRIENDS_QUERY = "SELECT * FROM users " +
             "WHERE id IN (SELECT friend_id FROM friendship WHERE user_id = ?)" +
             "AND id IN (SELECT friend_id FROM friendship WHERE user_id = ?)";
 
@@ -28,7 +28,7 @@ public class UserRepository extends BaseRepository<User> {
         super(jdbc, mapper);
     }
 
-    public Optional<User> findById(long userId) {
+    public Optional<User> findById(Long userId) {
         return findOne(FIND_BY_ID_QUERY, userId);
     }
 
@@ -37,7 +37,7 @@ public class UserRepository extends BaseRepository<User> {
     }
 
     public User create(User user) {
-        long id = insertWithGeneratedId(
+        Long id = insertWithGeneratedId(
                 INSERT_QUERY,
                 user.getEmail(),
                 user.getLogin(),

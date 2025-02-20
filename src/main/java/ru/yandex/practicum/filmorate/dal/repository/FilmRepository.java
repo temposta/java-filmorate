@@ -30,7 +30,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "LEFT JOIN film_genre fg on fg.film_id = f.id " +
             "LEFT JOIN genre g on g.id = fg.genre_id " +
             "LEFT JOIN rating mpa on mpa.id = f.rating " +
-            "LEFT JOIN \"like\" l on l.film_id = f.id " +
+            "LEFT JOIN likes l on l.film_id = f.id " +
             "GROUP BY f.id " +
             "ORDER BY count(l.user_id) DESC limit ?";
     private static final String INSERT_QUERY = "INSERT INTO film (name, description, release_date, duration, rating) VALUES (?, ?, ?, ?, ?)";

@@ -8,8 +8,8 @@ public interface LikeStorage {
 
     List<Like> findAll();
 
-    void create(long userId, long filmId);
+    void create(Long userId, Long filmId);
 
-    void delete(long userId, long filmId);
+    void delete(Long userId, Long filmId);
 
 }

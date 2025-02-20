@@ -34,7 +34,7 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .duration(resultSet.getInt("duration"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .mpa(Mpa.builder().id(resultSet.getLong("rating")).name(resultSet.getString("mpa_name")).build())
-                .genres(new ArrayList<>(genres))
+                .genres(new HashSet<>(genres))
                 .build();
     }
 }

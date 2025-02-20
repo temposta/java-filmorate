@@ -21,12 +21,12 @@ public class FriendshipDbStorage implements FriendshipStorage {
     }
 
     @Override
-    public void create(long userId, long friendId) {
+    public void create(Long userId, Long friendId) {
         friendshipRepository.create(userId, friendId);
     }
 
     @Override
-    public void delete(long userId, long friendId) {
+    public void delete(Long userId, Long friendId) {
         friendshipRepository.delete(userId, friendId);
     }
 

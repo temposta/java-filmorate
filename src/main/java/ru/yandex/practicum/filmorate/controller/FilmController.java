@@ -25,12 +25,13 @@ public class FilmController {
     @ResponseStatus(HttpStatus.CREATED)
     public Film create(@Valid @RequestBody Film film) {
         log.info("Получен запрос на создание фильма: {}", film.toString());
-        return filmService.create(film);
+        film = filmService.create(film);
+        return film;
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Film read(long id) {
+    public Film read(@PathVariable("id") Long id) {
         log.info("Получен запрос на получение фильма с идентификатором: {}", id);
         return filmService.read(id);
     }
@@ -44,7 +45,7 @@ public class FilmController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(long id) {
+    public void delete(@PathVariable("id") Long id) {
         log.info("Получен запрос на удаление фильма с идентификатором: {}", id);
         filmService.delete(id);
     }

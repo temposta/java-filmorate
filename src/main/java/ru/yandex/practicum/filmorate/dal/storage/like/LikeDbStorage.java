@@ -21,12 +21,12 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     @Override
-    public void create(long userId, long filmId) {
+    public void create(Long userId, Long filmId) {
         likeRepository.create(userId, filmId);
     }
 
     @Override
-    public void delete(long userId, long filmId) {
+    public void delete(Long userId, Long filmId) {
         likeRepository.remove(userId, filmId);
     }
 

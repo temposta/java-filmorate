@@ -25,4 +25,5 @@ public class GenreDbStorage implements GenreStorage {
     public Optional<Genre> read(Long id) {
         return genreRepository.getById(id);
     }
+
 }

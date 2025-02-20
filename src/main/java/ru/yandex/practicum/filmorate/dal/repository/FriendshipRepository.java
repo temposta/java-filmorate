@@ -24,7 +24,7 @@ public class FriendshipRepository extends BaseRepository<Friendship> {
         return findMany(FIND_ALL_QUERY);
     }
 
-    public void create(long userId, long friendId) {
+    public void create(Long userId, Long friendId) {
         insert(INSERT_QUERY,
                 userId,
                 friendId,
@@ -33,7 +33,7 @@ public class FriendshipRepository extends BaseRepository<Friendship> {
         update(ACCEPT_QUERY, friendId, userId);
     }
 
-    public void delete(long userId, long friendId) {
+    public void delete(Long userId, Long friendId) {
         delete(DELETE_QUERY, userId, friendId);
         update(REMOVE_ACCEPT_QUERY, friendId, userId);
     }

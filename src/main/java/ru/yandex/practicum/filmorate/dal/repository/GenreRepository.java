@@ -25,4 +25,5 @@ public class GenreRepository extends BaseRepository<Genre> {
     public Optional<Genre> getById(Long genreId) {
         return findOne(FIND_BY_ID_QUERY, genreId);
     }
+
 }

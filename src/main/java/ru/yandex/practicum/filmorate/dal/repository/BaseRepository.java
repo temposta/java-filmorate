@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class BaseRepository<T> {
+
     protected final JdbcTemplate jdbc;
     protected final RowMapper<T> mapper;
 
@@ -46,7 +47,7 @@ public class BaseRepository<T> {
         }
     }
 
-    protected long insertWithGeneratedId(String query, Object... params) {
+    protected Long insertWithGeneratedId(String query, Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
             PreparedStatement ps = connection

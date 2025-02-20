@@ -8,8 +8,8 @@ public interface FriendshipStorage {
 
     List<Friendship> getAll();
 
-    void create(long userId, long friendId);
+    void create(Long userId, Long friendId);
 
-    void delete(long userId, long friendId);
+    void delete(Long userId, Long friendId);
 
 }
