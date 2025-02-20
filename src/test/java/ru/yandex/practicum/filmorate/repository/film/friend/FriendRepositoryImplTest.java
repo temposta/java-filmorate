@@ -77,8 +77,11 @@ class FriendRepositoryImplTest {
     @Test
     @DisplayName("получение списка id общих друзей")
     void getCommonFriendIds() {
-        Set<Long> commonFriends = repository.getCommonFriendIds(2L, 5L);
-        assertIterableEquals(commonFriends, Set.of(3L, 6L));
+        List<Long> commonFriends = repository.getCommonFriendIds(2L, 5L)
+                .stream()
+                .sorted(Comparator.comparingLong(Long::longValue))
+                .toList();
+        assertIterableEquals(commonFriends, List.of(3L, 6L));
     }
 
     @Test
