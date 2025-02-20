@@ -62,3 +62,17 @@ insert into friends (user_id, friend_id) values (5, 2);
 insert into friends (user_id, friend_id) values (5, 3);
 insert into friends (user_id, friend_id) values (5, 4);
 insert into friends (user_id, friend_id) values (5, 6);
+
+insert into filmgenres (film_id, genre_id) values (2,1);
+insert into filmgenres (film_id, genre_id) values (2,2);
+insert into filmgenres (film_id, genre_id) values (2,3);
+insert into filmgenres (film_id, genre_id) values (2,4);
+insert into filmgenres (film_id, genre_id) values (3,5);
+insert into filmgenres (film_id, genre_id) values (3,6);
+insert into filmgenres (film_id, genre_id) values (3,4);
+insert into filmgenres (film_id, genre_id) values (4,1);
+insert into filmgenres (film_id, genre_id) values (5,2);
+insert into filmgenres (film_id, genre_id) values (6,3);
+insert into filmgenres (film_id, genre_id) values (6,4);
+insert into filmgenres (film_id, genre_id) values (6,5);
+insert into filmgenres (film_id, genre_id) values (6,6);
