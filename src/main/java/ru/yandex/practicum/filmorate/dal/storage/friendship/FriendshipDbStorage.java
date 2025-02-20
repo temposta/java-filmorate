@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.storage.friendship;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.dal.repository.FriendshipRepository;
@@ -9,7 +8,6 @@ import ru.yandex.practicum.filmorate.dal.repository.FriendshipRepository;
 import java.util.List;
 
 @Component
-@Primary
 @RequiredArgsConstructor
 public class FriendshipDbStorage implements FriendshipStorage {
 

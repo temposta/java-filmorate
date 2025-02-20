@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.storage.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dal.repository.UserRepository;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@Primary
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 

@@ -23,9 +23,9 @@ public class RatingService {
     }
 
     public Mpa findById(Long id) {
-        Optional<Mpa> Rating = ratingStorage.read(id);
-        if (Rating.isPresent()) {
-            return Rating.get();
+        Optional<Mpa> rating = ratingStorage.read(id);
+        if (rating.isPresent()) {
+            return rating.get();
         }
         log.error(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, id));
         throw new NotFoundException(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, id));

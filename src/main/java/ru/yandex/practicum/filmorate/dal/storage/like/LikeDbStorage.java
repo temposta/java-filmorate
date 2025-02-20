@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.storage.like;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.dal.repository.LikeRepository;
@@ -9,7 +8,6 @@ import ru.yandex.practicum.filmorate.dal.repository.LikeRepository;
 import java.util.List;
 
 @Component
-@Primary
 @RequiredArgsConstructor
 public class LikeDbStorage implements LikeStorage {
 
