@@ -110,7 +110,7 @@ class FilmServiceTest {
     @Test
     @DisplayName("добавление лайка")
     void addLike() {
-        assertDoesNotThrow(()->filmService.addLike(4L,5L));
+        assertDoesNotThrow(() -> filmService.addLike(4L, 5L));
     }
 
     @Test
