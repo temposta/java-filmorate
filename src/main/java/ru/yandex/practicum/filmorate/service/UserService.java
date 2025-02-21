@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.film.friend.FriendRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,9 +15,12 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository repository;
+    private final FriendRepository friendRepository;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, FriendRepository friendRepository) {
         this.repository = repository;
+        this.friendRepository = friendRepository;
+        log.info("UserService created");
     }
 
     public User createUser(User user) {
@@ -28,6 +32,7 @@ public class UserService {
 
     public User updateUser(User user) {
         log.info("Updating user: {} - Starting", user);
+        repository.checkUser(user.getId());
         User updatedUser = repository.update(user);
         log.info("User updated: {} - Finishing", user);
         return updatedUser;
@@ -40,6 +45,7 @@ public class UserService {
 
     public User deleteUser(User user) {
         log.info("Deleting user: {} - Starting", user);
+        repository.checkUser(user.getId());
         User deletedUser = repository.delete(user);
         log.info("User deleted: {} - Finishing", user);
         return deletedUser;
@@ -47,64 +53,52 @@ public class UserService {
 
     public User getUserById(long id) {
         log.info("Getting user by id: {} - Starting", id);
+        repository.checkUser(id);
         User foundUser = repository.findById(id);
         log.info("User found: {} - Finishing", id);
         return foundUser;
     }
 
-    public User addFriend(long id, long friendId) {
-        log.info("Adding friend: {} - Starting", friendId);
-        User foundUser = repository.findById(id);
-        User friend = repository.findById(friendId);
+    public void addFriend(long id, long friendId) {
+        log.info("Adding friend to userId: {} - Starting", id);
+        repository.checkUser(id);
         if (id == friendId) {
             log.info("FriendID == UserID : {} - Finishing without adding", id);
-            return foundUser;
+            throw new DataIntegrityViolationException("FriendID == UserID");
         }
-        foundUser.getFriends().add(friendId);
-        friend.getFriends().add(id);
-        repository.update(foundUser);
-        repository.update(friend);
-        log.info("Friend added: {} - Finishing", friendId);
-        return foundUser;
+        repository.checkUser(friendId);
+        friendRepository.addFriend(id, friendId);
+        log.info("Friend added to userId: {} - Finishing", id);
     }
 
-    public User deleteFriend(long id, long friendId) {
+    public void deleteFriend(long id, long friendId) {
         log.info("Deleting friend: {} - Starting", friendId);
-        User foundUser = repository.findById(id);
-        User friend = repository.findById(friendId);
+        repository.checkUser(id);
         if (id == friendId) {
             log.info("FriendID == UserID : {} - Finishing without deleting", id);
-            return foundUser;
+            throw new DataIntegrityViolationException("FriendID == UserID");
         }
-        foundUser.getFriends().remove(friendId);
-        friend.getFriends().remove(id);
-        repository.update(foundUser);
-        repository.update(friend);
+        repository.checkUser(friendId);
+        friendRepository.removeFriend(id, friendId);
         log.info("Friend deleted: {} - Finishing", friendId);
-        return foundUser;
     }
 
     public List<User> getFriends(long id) {
         log.info("Getting friends: {} - Starting", id);
-        List<User> friends = new ArrayList<>();
-        repository.findById(id)
-                .getFriends()
-                .forEach(friendId -> friends.add(repository.findById(friendId)));
+        repository.checkUser(id);
+        Set<Long> friends = friendRepository.getFriendIds(id);
+        if (friends.isEmpty()) return List.of();
         log.info("Friends found: {} - Finishing", id);
-        return friends;
+        return repository.getListUsers(friends);
     }
 
     public List<User> getFriendsCommon(long id, long otherId) {
         log.info("Getting common friends: {} & {} - Starting", id, otherId);
-        List<User> commonFriends = new ArrayList<>();
-        Set<Long> firstFriends = repository.findById(id).getFriends();
-        Set<Long> secondFriends = repository.findById(otherId).getFriends();
-        firstFriends.forEach(friendId -> {
-            if (secondFriends.contains(friendId)) {
-                commonFriends.add(repository.findById(friendId));
-            }
-        });
+        repository.checkUser(id);
+        repository.checkUser(otherId);
+        Set<Long> commonFriends = friendRepository.getCommonFriendIds(id, otherId);
+        if (commonFriends.isEmpty()) return List.of();
         log.info("Common friends found: {} & {} - Finishing", id, otherId);
-        return commonFriends;
+        return repository.getListUsers(commonFriends);
     }
 }

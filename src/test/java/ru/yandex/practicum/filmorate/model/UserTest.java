@@ -25,10 +25,11 @@ class UserTest {
     @Test
     @DisplayName("проверка валидации поля Email по шаблону")
     void testEmailTemplateValidation() {
-        User user = new User();
-        user.setEmail("testtestcom");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
+        User user = User.builder()
+                .email("testtestcom")
+                .login("login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
@@ -38,10 +39,11 @@ class UserTest {
     @Test
     @DisplayName("проверка валидации поля Email на пустоту")
     void testEmailNotBlankValidation() {
-        User user = new User();
-        user.setEmail("");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
+        User user = User.builder()
+                .email("")
+                .login("login")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
@@ -51,10 +53,11 @@ class UserTest {
     @Test
     @DisplayName("проверка валидации поля Login")
     void testLoginValidation() {
-        User user = new User();
-        user.setEmail("test@email.com");
-        user.setLogin("log in");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
+        User user = User.builder()
+                .email("test@email.com")
+                .login("log in")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));
@@ -64,10 +67,11 @@ class UserTest {
     @Test
     @DisplayName("проверка валидации поля Birthday")
     void testBirthdayValidation() {
-        User user = new User();
-        user.setEmail("test@email.com");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2990, 1, 1));
+        User user = User.builder()
+                .email("test@email.com")
+                .login("login")
+                .birthday(LocalDate.of(2990, 1, 1))
+                .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         violations.forEach(e -> System.out.println(e.getPropertyPath() + " " + e.getMessage()));

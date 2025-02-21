@@ -4,18 +4,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.film.like.LikeRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
 
     private final FilmRepository repository;
+    private final LikeRepository likeRepository;
 
-    public FilmService(FilmRepository repository) {
+    public FilmService(FilmRepository repository, LikeRepository likeRepository) {
         this.repository = repository;
+        this.likeRepository = likeRepository;
+        log.info("FilmService created");
     }
 
     public Film createFilm(Film film) {
@@ -27,6 +30,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         log.info("Update Film: {} - Started", film);
+        repository.checkFilm(film.getId());
         Film updatedFilm = repository.update(film);
         log.info("Update Film: {} - Updated", film);
         return updatedFilm;
@@ -39,6 +43,7 @@ public class FilmService {
 
     public Film deleteFilm(Film film) {
         log.info("Delete Film: {} - Started", film);
+        repository.checkFilm(film.getId());
         Film deletedFilm = repository.delete(film);
         log.info("Delete Film: {} - Deleted", film);
         return deletedFilm;
@@ -51,34 +56,20 @@ public class FilmService {
         return foundFilm;
     }
 
-    public Film addLike(long id, long userId) {
+    public void addLike(long id, long userId) {
         log.info("Add Like to Film: {} - Started", id);
-        Film film = repository.findById(id);
-        film.getLikes().add(userId);
-        repository.update(film);
+        likeRepository.addLike(id, userId);
         log.info("Add Like to Film: {} - Added", id);
-        return film;
     }
 
-    public Film deleteLike(long id, long userId) {
+    public void deleteLike(long id, long userId) {
         log.info("Delete Like from Film: {} - Started", id);
-        Film film = repository.findById(id);
-        film.getLikes().remove(userId);
-        repository.update(film);
+        likeRepository.removeLike(id, userId);
         log.info("Delete Like from Film: {} - Deleted", id);
-        return film;
     }
 
     public List<Film> getPopularFilms(int count) {
         log.info("Get Popular Films");
-        List<Film> popularFilms = repository.getAll()
-                .stream()
-                .filter(film -> !film.getLikes().isEmpty())
-                .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
-                .collect(Collectors.toList());
-        if (popularFilms.size() < count) {
-            return popularFilms;
-        }
-        return popularFilms.subList(0, count);
+        return repository.getPopular(count);
     }
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.validators.UserIDExists;
 
 import java.util.List;
 
@@ -58,31 +58,31 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserById(@PathVariable @UserIDExists long id) {
+    public User getUserById(@PathVariable @Positive long id) {
         return userService.getUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public User addFriend(@PathVariable @UserIDExists long id, @PathVariable @UserIDExists long friendId) {
-        return userService.addFriend(id,friendId);
+    public void addFriend(@PathVariable @Positive long id, @PathVariable @Positive long friendId) {
+        userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public User deleteFriend(@PathVariable @UserIDExists long id, @PathVariable @UserIDExists long friendId) {
-        return userService.deleteFriend(id, friendId);
+    public void deleteFriend(@PathVariable @Positive long id, @PathVariable @Positive long friendId) {
+        userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getFriends(@PathVariable @UserIDExists long id) {
+    public List<User> getFriends(@PathVariable @Positive long id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getFriendsCommon(@PathVariable @UserIDExists long id, @PathVariable @UserIDExists long otherId) {
+    public List<User> getFriendsCommon(@PathVariable @Positive long id, @PathVariable @Positive long otherId) {
         return userService.getFriendsCommon(id, otherId);
     }
 }
