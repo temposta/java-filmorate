@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
@@ -18,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
     private final UserService userService;
 
     @PostMapping
@@ -30,7 +28,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public User read(long id) {
+    public User read(@PathVariable("id") Long id) {
         log.info("Получен запрос на получение пользователя с идентификатором: {}", id);
         return userService.read(id);
     }
@@ -44,7 +42,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(long id) {
+    public void delete(@PathVariable("id") Long id) {
         log.info("Получен запрос на удаление фильма с пользователя: {}", id);
         userService.delete(id);
     }
@@ -77,12 +75,11 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> addFriend(@PathVariable("id") Long userId,
+    public void addFriend(@PathVariable("id") Long userId,
                                 @PathVariable("friendId") Long friendId) {
         log.info("Вызван метод PUT /{id}/friends/{friendId} с id = {} и friendId = {}", userId, friendId);
-        List<User> userFriends = userService.addFriend(userId, friendId);
-        log.info("Метод PUT /{id}/friends/{friendId} вернул ответ {}", userFriends);
-        return userFriends;
+        userService.addFriend(userId, friendId);
+        log.info("Метод PUT /{id}/friends/{friendId} успешно выполнен");
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")

@@ -5,14 +5,17 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.validator.date.MinimumDate;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * Film
  */
 @Data
+@EqualsAndHashCode(of = {"name", "releaseDate"})
 @Builder(toBuilder = true)
 public class Film {
     private Long id;
@@ -23,6 +26,8 @@ public class Film {
     private String description;
     @MinimumDate
     private LocalDate releaseDate;
-    @PositiveOrZero
+    @PositiveOrZero(message = "Длительность не может быть меньше нуля")
     private int duration;
+    private Mpa mpa;
+    private Set<Genre> genres;
 }

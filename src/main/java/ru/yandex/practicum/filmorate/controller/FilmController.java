@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,19 +17,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmController {
 
-    @Autowired
     private final FilmService filmService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film create(@Valid @RequestBody Film film) {
         log.info("Получен запрос на создание фильма: {}", film.toString());
-        return filmService.create(film);
+        film = filmService.create(film);
+        return film;
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Film read(long id) {
+    public Film read(@PathVariable("id") Long id) {
         log.info("Получен запрос на получение фильма с идентификатором: {}", id);
         return filmService.read(id);
     }
@@ -44,7 +43,7 @@ public class FilmController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(long id) {
+    public void delete(@PathVariable("id") Long id) {
         log.info("Получен запрос на удаление фильма с идентификатором: {}", id);
         filmService.delete(id);
     }
