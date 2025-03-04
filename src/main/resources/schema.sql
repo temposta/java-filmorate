@@ -65,3 +65,4 @@ ALTER TABLE film_genre ADD FOREIGN KEY (film_id) REFERENCES film (id) ON DELETE 
 ALTER TABLE film ADD FOREIGN KEY (rating) REFERENCES rating (id) ON DELETE CASCADE;
 
 ALTER TABLE film ADD FOREIGN KEY (director_id) references director (id);
+
