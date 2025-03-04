@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.storage.film;
 
+import ru.yandex.practicum.filmorate.controller.SearchValues;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public interface FilmStorage {
 
     List<Film> getPopularFilms(Long count);
 
+    List<Film> searchFilms(String query, List<SearchValues> by);
 }

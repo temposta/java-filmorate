@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controller.SearchValues;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.dal.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.dal.storage.rating.RatingStorage;
@@ -48,6 +50,8 @@ public class FilmService {
             });
         }
 
+        //TODO после создания directorStorage -> проверить валидность director_id при создании Фильма
+
         film = filmStorage.create(film);
         log.info("Фильм создан {}", film);
         return film;
@@ -79,6 +83,8 @@ public class FilmService {
                 }
             });
         }
+
+        //TODO после создания directorStorage -> проверить валидность director_id при обновлении Фильма
 
         film = filmStorage.update(film);
         log.info("Фильм обновлен {}", film);
@@ -165,4 +171,7 @@ public class FilmService {
         return filmStorage.getPopularFilms(count);
     }
 
+    public List<Film> searchFilms(@NotNull String query, @NotNull List<SearchValues> by) {
+        return filmStorage.searchFilms(query, by);
+    }
 }
