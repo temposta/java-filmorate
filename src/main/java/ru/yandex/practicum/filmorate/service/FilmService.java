@@ -3,9 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.dal.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.dal.storage.rating.RatingStorage;
+import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -13,8 +16,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
 
 import java.util.*;
 
@@ -28,6 +29,7 @@ public class FilmService {
     private final RatingStorage ratingStorage;
     private final GenreStorage genreStorage;
     private final LikeStorage likeStorage;
+    private final FilmRepository filmRepository;
 
     public Film create(Film film) {
 
@@ -163,6 +165,12 @@ public class FilmService {
 
     public List<Film> getPopularFilms(Long count) {
         return filmStorage.getPopularFilms(count);
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
+        log.info("Получен список общих фильмов. Количество: {}", commonFilms.size());
+        return commonFilms;
     }
 
 }
