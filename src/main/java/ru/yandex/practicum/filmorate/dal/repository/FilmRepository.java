@@ -13,27 +13,29 @@ import java.util.Optional;
 
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
-    private static final String FIND_BY_ID_QUERY = "SELECT f.*, mpa.name as mpa_name, dir.name as director_name, string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names " +
-                                                   "FROM film f " +
-                                                   "LEFT JOIN film_genre fg on fg.film_id = f.id " +
-                                                   "LEFT JOIN genre g on g.id = fg.genre_id " +
-                                                   "LEFT JOIN rating mpa on mpa.id = f.rating " +
-                                                   "LEFT JOIN director dir on dir.id = f.director_id" +
-                                                   "WHERE f.id = ? " +
-                                                   "GROUP BY f.id";
+    private static final String FIND_BY_ID_QUERY = """
+            SELECT f.*, mpa.name as mpa_name, dir.name as director_name, string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names
+            FROM film f
+            LEFT JOIN film_genre fg on fg.film_id = f.id
+            LEFT JOIN genre g on g.id = fg.genre_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN director dir on dir.id = f.director_id
+            WHERE f.id = ?
+            GROUP BY f.id
+            """;
     private static final String FIND_ALL_QUERY = "SELECT f.*, mpa.name as mpa_name, dir.name as director_name, string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names " +
                                                  "FROM film f " +
                                                  "LEFT JOIN film_genre fg on fg.film_id = f.id " +
                                                  "LEFT JOIN genre g on g.id = fg.genre_id " +
                                                  "LEFT JOIN rating mpa on mpa.id = f.rating " +
-                                                 "LEFT JOIN director dir on dir.id = f.director_id" +
+                                                 "LEFT JOIN director dir on dir.id = f.director_id " +
                                                  "GROUP BY f.id";
     private static final String FIND_POPULAR_QUERY = "SELECT f.*, mpa.name as mpa_name, dir.name as director_name, string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names " +
                                                      "FROM film f " +
                                                      "LEFT JOIN film_genre fg on fg.film_id = f.id " +
                                                      "LEFT JOIN genre g on g.id = fg.genre_id " +
                                                      "LEFT JOIN rating mpa on mpa.id = f.rating " +
-                                                     "LEFT JOIN director dir on dir.id = f.director_id" +
+                                                     "LEFT JOIN director dir on dir.id = f.director_id " +
                                                      "LEFT JOIN likes l on l.film_id = f.id " +
                                                      "GROUP BY f.id " +
                                                      "ORDER BY count(l.user_id) DESC limit ?";
@@ -41,13 +43,13 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String DELETE_QUERY = "DELETE FROM film WHERE id = ?";
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
     private static final String DELETE_GENRES_QUERY = "DELETE FROM film_genre WHERE film_id = ?";
-    private static final String UPDATE_QUERY = "UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, rating = ?, director_id = ?, WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, rating = ?, director_id = ? WHERE id = ?";
     private static final String SEARCH_BY_QUERY = "SELECT f.*, mpa.name as mpa_name, dir.name as director_name, string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names " +
                                                   "FROM film f " +
                                                   "LEFT JOIN film_genre fg on fg.film_id = f.id " +
                                                   "LEFT JOIN genre g on g.id = fg.genre_id " +
                                                   "LEFT JOIN rating mpa on mpa.id = f.rating " +
-                                                  "LEFT JOIN director dir on dir.id = f.director_id" +
+                                                  "LEFT JOIN director dir on dir.id = f.director_id " +
                                                   "LEFT JOIN likes l on l.film_id = f.id " +
                                                   "WHERE f.name LIKE ? OR dir.name LIKE ? " +
                                                   "GROUP BY f.id " +
