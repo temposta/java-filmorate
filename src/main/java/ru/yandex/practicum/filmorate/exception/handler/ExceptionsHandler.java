@@ -41,14 +41,14 @@ public class ExceptionsHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(ValidationException e) {
         log.info("Ошибка валидации: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse(e.getMessage(), List.of(String.valueOf(e.getClass())));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.info(e.getMessage());
-        return new ErrorResponse(e.getMessage());
+        return new ErrorResponse(e.getMessage(), List.of(String.valueOf(e.getClass())));
     }
 
     @ExceptionHandler

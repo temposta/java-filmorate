@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.dal.storage.film;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import ru.yandex.practicum.filmorate.controller.SearchValues;
+import ru.yandex.practicum.filmorate.controller.SortValue;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -19,4 +23,7 @@ public interface FilmStorage {
 
     List<Film> getPopularFilms(Long count);
 
+    List<Film> searchFilms(String query, List<SearchValues> by);
+
+    List<Film> searchFilms(@NotNull @Positive Long directorId, SortValue sortValue);
 }

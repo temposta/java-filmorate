@@ -6,12 +6,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.dal.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.dal.storage.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -40,6 +42,8 @@ class FilmServiceTest {
     private GenreStorage genreStorage;
     @Mock
     private LikeStorage likeStorage;
+    @Mock
+    private DirectorStorage directorStorage;
 
     @InjectMocks
     private FilmService filmService;
@@ -54,6 +58,7 @@ class FilmServiceTest {
                 .name("Test Film")
                 .description("Test Description")
                 .mpa(new Mpa(1L, "G"))
+                .directors(Set.of(new Director(1L, "director")))
                 .genres(Set.of(new Genre(1L, "Комедия")))
                 .build();
 
@@ -95,6 +100,7 @@ class FilmServiceTest {
     @Test
     void createFilm_Success() {
         when(ratingStorage.read(anyLong())).thenReturn(Optional.of(new Mpa(1L, "G")));
+        when(directorStorage.getAll()).thenReturn(List.of(new Director(1L, "director")));
         when(genreStorage.getAll()).thenReturn(List.of(new Genre(1L, "Комедия")));
         when(filmStorage.create(any(Film.class))).thenReturn(testFilm);
 
@@ -133,6 +139,7 @@ class FilmServiceTest {
     void updateFilm_Success() {
         when(filmStorage.read(anyLong())).thenReturn(Optional.of(testFilm));
         when(ratingStorage.read(anyLong())).thenReturn(Optional.of(new Mpa(1L, "G")));
+        when(directorStorage.getAll()).thenReturn(List.of(new Director(1L, "director")));
         when(genreStorage.getAll()).thenReturn(List.of(new Genre(1L, "Комедия")));
         when(filmStorage.update(any(Film.class))).thenReturn(testFilm);
 

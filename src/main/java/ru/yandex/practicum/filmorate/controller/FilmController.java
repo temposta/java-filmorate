@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -80,6 +82,32 @@ public class FilmController {
         log.info("Вызван метод DELETE /films/{id}/like/{userId} с id = {} и userId = {}", filmId, userId);
         filmService.removeLike(filmId, userId);
         log.info("Метод DELETE /films/{id}/like/{userId} успешно выполнен");
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> searchFilms(@RequestParam("query") @NotNull String query,
+                                  @RequestParam("by") @NotNull List<String> by) {
+        log.info("Вызван метод GET /fimls/search с параметрами query = {}, by = {}", query, by.toString());
+        List<SearchValues> searchValues = by.stream()
+                .map(String::toUpperCase)
+                .map(SearchValues::valueOf)
+                .toList();
+        List<Film> foundedFilms = filmService.searchFilms(query, searchValues);
+        log.info("Метод GET /fimls/search успешно выполнен, число найденных фильмов = {}", foundedFilms.size());
+        return foundedFilms;
+    }
+
+    @GetMapping("director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> searchFilms(@PathVariable @NotNull @Positive Long directorId,
+                                  @RequestParam("sortBy") @NotNull String sortBy) {
+        log.info("Вызван метод GET /films/director/{}?sortBy={}", directorId, sortBy);
+        SortValue sortValue = SortValue.valueOf(sortBy.toUpperCase());
+        List<Film> foundedFilms = filmService.searchFilms(directorId, sortValue);
+        log.info("Метод GET /films/director/{}?sortBy={} успешно выполнен, число найденных фильмов = {}",
+                directorId, sortBy, foundedFilms.size());
+        return foundedFilms;
     }
 
 }
