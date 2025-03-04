@@ -33,10 +33,10 @@ public class FilmRepository extends BaseRepository<Film> {
             "LEFT JOIN likes l on l.film_id = f.id " +
             "GROUP BY f.id " +
             "ORDER BY count(l.user_id) DESC limit ?";
-    private static final String GET_COMMON_FILMS = "SELECT f.*, m.mpa_id AS mpa_id, m.name AS mpa_name" +
+    private static final String GET_COMMON_FILMS = "SELECT f.*, r.rating_id AS mpa_id, m.name AS mpa_name" +
             " FROM likes AS l" +
-            " JOIN films AS f ON l.film_id = f.film_id" +
-            " JOIN mpa m ON f.mpa_id = m.mpa_id" +
+            " JOIN film AS f ON l.film_id = f.film_id" +
+            " JOIN rating r ON f.rating_id = m.mpa_id" +
             " WHERE l.user_id = ?" +
             " AND l.film_id IN (SELECT fl.film_id FROM likes AS fl WHERE fl.user_id = ?)" +
             " ORDER BY f.rate DESC";
