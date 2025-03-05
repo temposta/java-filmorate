@@ -86,9 +86,14 @@ public class FilmController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> searchFilms(@RequestParam("query") @NotNull String query,
-                                  @RequestParam("by") @NotNull List<SearchValues> by) {
+                                  @RequestParam("by") @NotNull List<String> by) {
         log.info("Вызван метод GET /fimls/search с параметрами query = {}, by = {}", query, by.toString());
-        List<Film> foundedFilms = filmService.searchFilms(query, by);
+        List<SearchValues> searchValues = by.stream()
+                .map(String::toUpperCase)
+                .map(SearchValues::valueOf)
+                .toList();
+        System.out.println("searchValues = " + searchValues);
+        List<Film> foundedFilms = filmService.searchFilms(query, searchValues);
         log.info("Метод GET /fimls/search успешно выполнен, число найденных фильмов = {}", foundedFilms.size());
         return foundedFilms;
     }
