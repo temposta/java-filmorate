@@ -108,6 +108,7 @@ class UserServiceTest {
     // ------------------------- Тесты для delete() -------------------------
     @Test
     void deleteUser_Success() {
+        when(userStorage.delete(anyLong())).thenReturn(true);
         userService.delete(1L);
         verify(userStorage, times(1)).delete(1L);
     }
