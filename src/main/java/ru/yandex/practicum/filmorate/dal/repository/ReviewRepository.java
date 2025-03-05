@@ -50,7 +50,7 @@ public class ReviewRepository extends BaseRepository<Review> {
                 review.getContent(),
                 review.getIsPositive(),
                 review.getId());
-        // TODO добавить логику управления полем useful
+        updateUsefulRating(review.getId());
         return review;
     }
 
