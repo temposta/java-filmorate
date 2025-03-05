@@ -184,6 +184,8 @@ public class FilmService {
     }
 
     private void checkDirector(Film film) {
+        Optional<Director> dir = Optional.ofNullable(film.getDirector());
+        if (dir.isEmpty()) return;
         Optional<Director> director = directorStorage.read(film.getDirector().getId());
         if (director.isEmpty()) {
             String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, film.getDirector().getId());
