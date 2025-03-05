@@ -98,7 +98,7 @@ public class FilmRepository extends BaseRepository<Film> {
                     FROM film_director fd
                     WHERE fd.DIRECTOR_ID = ?)
             GROUP BY f.id, f.RELEASE_DATE
-            ORDER BY extract(YEAR FROM f.RELEASE_DATE) DESC
+            ORDER BY extract(YEAR FROM f.RELEASE_DATE)
             """;
     private static final String SEARCH_BY_DIR_LIKES_SORT = """
                         SELECT f.*, mpa.name as mpa_name,
