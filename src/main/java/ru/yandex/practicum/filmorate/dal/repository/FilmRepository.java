@@ -109,7 +109,7 @@ public class FilmRepository extends BaseRepository<Film> {
         if (film.getGenres() != null) {
             film.getGenres().forEach(genre -> insert(INSERT_GENRES_QUERY, id, genre.getId()));
         }
-        if (film.getDirectors() != null){
+        if (film.getDirectors() != null) {
             film.getDirectors().forEach(director -> insert(INSERT_DIRECTORS_QUERY, id, director.getId()));
         }
         return film;
