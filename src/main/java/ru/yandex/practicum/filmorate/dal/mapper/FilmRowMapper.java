@@ -28,7 +28,7 @@ public class FilmRowMapper implements RowMapper<Film> {
         Set<Genre> genres = new HashSet<>();
         IntStream.range(0, genreIds.size()).forEach(i -> genres.add(Genre.builder().id(Long.parseLong(genreIds.get(i))).name(genreNames.get(i)).build()));
 
-        Director director = resultSet.getString("director_name") == null ? null :
+        Director director = resultSet.getString("director_name") == null ? Director.builder().build() :
                 Director.builder()
                         .id(resultSet.getLong("director_id"))
                         .name(resultSet.getString("director_name"))
