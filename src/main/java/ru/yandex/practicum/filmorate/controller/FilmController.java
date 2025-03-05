@@ -103,7 +103,7 @@ public class FilmController {
     public List<Film> searchFilms(@PathVariable @NotNull @Positive Long directorId,
                                   @RequestParam("sortBy") @NotNull String sortBy) {
         log.info("Вызван метод GET /films/director/{}?sortBy={}", directorId, sortBy);
-        SortValue sortValue = SortValue.valueOf(sortBy);
+        SortValue sortValue = SortValue.valueOf(sortBy.toUpperCase());
         List<Film> foundedFilms = filmService.searchFilms(directorId, sortValue);
         log.info("Метод GET /films/director/{}?sortBy={} успешно выполнен, число найденных фильмов = {}",
                 directorId, sortBy, foundedFilms.size());
