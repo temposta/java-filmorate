@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class DirectorService {
     public Director update(@Valid Director director) {
         if (director.getId() == null) {
             log.error("Не указан id режиссера {}", director);
-            throw new NotFoundException("Id должен быть указан");
+            throw new ValidationException("Id должен быть указан");
         }
         if (directorStorage.read(director.getId()).isEmpty()) {
             String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, director.getId());

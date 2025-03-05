@@ -58,7 +58,7 @@ class FilmServiceTest {
                 .name("Test Film")
                 .description("Test Description")
                 .mpa(new Mpa(1L, "G"))
-                .director(new Director(1L, "director"))
+                .directors(Set.of(new Director(1L, "director")))
                 .genres(Set.of(new Genre(1L, "Комедия")))
                 .build();
 
@@ -100,7 +100,7 @@ class FilmServiceTest {
     @Test
     void createFilm_Success() {
         when(ratingStorage.read(anyLong())).thenReturn(Optional.of(new Mpa(1L, "G")));
-        when(directorStorage.read(anyLong())).thenReturn(Optional.of(new Director(1L, "director")));
+        when(directorStorage.getAll()).thenReturn(List.of(new Director(1L, "director")));
         when(genreStorage.getAll()).thenReturn(List.of(new Genre(1L, "Комедия")));
         when(filmStorage.create(any(Film.class))).thenReturn(testFilm);
 
@@ -139,7 +139,7 @@ class FilmServiceTest {
     void updateFilm_Success() {
         when(filmStorage.read(anyLong())).thenReturn(Optional.of(testFilm));
         when(ratingStorage.read(anyLong())).thenReturn(Optional.of(new Mpa(1L, "G")));
-        when(directorStorage.read(anyLong())).thenReturn(Optional.of(new Director(1L, "director")));
+        when(directorStorage.getAll()).thenReturn(List.of(new Director(1L, "director")));
         when(genreStorage.getAll()).thenReturn(List.of(new Genre(1L, "Комедия")));
         when(filmStorage.update(any(Film.class))).thenReturn(testFilm);
 

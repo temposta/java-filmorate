@@ -25,14 +25,25 @@ public class FilmRowMapper implements RowMapper<Film> {
                 ? List.of(resultSet.getString("genre_names").split(", "))
                 : new ArrayList<>();
 
-        Set<Genre> genres = new HashSet<>();
-        IntStream.range(0, genreIds.size()).forEach(i -> genres.add(Genre.builder().id(Long.parseLong(genreIds.get(i))).name(genreNames.get(i)).build()));
+        List<String> dirIds = resultSet.getString("dir_ids") != null
+                ? List.of(resultSet.getString("dir_ids").split(", "))
+                : new ArrayList<>();
 
-        Director director = resultSet.getString("director_name") == null ? null :
-                Director.builder()
-                        .id(resultSet.getLong("director_id"))
-                        .name(resultSet.getString("director_name"))
-                        .build();
+        List<String> dirNames = resultSet.getString("dir_names") != null
+                ? List.of(resultSet.getString("dir_names").split(", "))
+                : new ArrayList<>();
+
+        Set<Genre> genres = new HashSet<>();
+        IntStream.range(0, genreIds.size()).forEach(i -> genres.add(Genre.builder()
+                .id(Long.parseLong(genreIds.get(i)))
+                .name(genreNames.get(i))
+                .build()));
+
+        Set<Director> directors = new HashSet<>();
+        IntStream.range(0, dirIds.size()).forEach(i -> directors.add(Director.builder()
+                .id(Long.parseLong(dirIds.get(i)))
+                .name(dirNames.get(i))
+                .build()));
 
         return Film.builder()
                 .id(resultSet.getLong("id"))
@@ -44,8 +55,8 @@ public class FilmRowMapper implements RowMapper<Film> {
                         .id(resultSet.getLong("rating"))
                         .name(resultSet.getString("mpa_name"))
                         .build())
-                .director(director)
                 .genres(new HashSet<>(genres))
+                .directors(new HashSet<>(directors))
                 .build();
     }
 }
