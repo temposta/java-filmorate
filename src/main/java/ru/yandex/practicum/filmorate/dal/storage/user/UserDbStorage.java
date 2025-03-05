@@ -35,8 +35,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void delete(Long userId) {
-        userRepository.delete(userId);
+    public boolean delete(Long userId) {
+        return userRepository.delete(userId);
     }
 
     @Override
