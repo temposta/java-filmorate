@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.controller.SearchValues;
-import ru.yandex.practicum.filmorate.controller.SortValue;
+import ru.yandex.practicum.filmorate.enums.SearchValues;
+import ru.yandex.practicum.filmorate.enums.SortValue;
 import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.dal.storage.like.LikeStorage;
@@ -103,15 +103,15 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        checkFilmId(filmId);
-        checkUserId(userId);
+        checkFilm(filmId);
+        checkUser(userId);
         likeStorage.create(userId, filmId);
         log.info("Пользователь с id = {} поставил лайк фильму с id = {}", userId, filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        checkFilmId(filmId);
-        checkUserId(userId);
+        checkFilm(filmId);
+        checkUser(userId);
         likeStorage.delete(userId, filmId);
         log.info("Пользователь с id = {} убрал лайк с фильма с id = {}", userId, filmId);
     }
@@ -120,20 +120,20 @@ public class FilmService {
         return filmStorage.getPopularFilms(count);
     }
 
-    public List<Film> searchFilms(@NotNull String query, @NotNull List<SearchValues> by) {
-        return filmStorage.searchFilms(query, by);
+    public List<Film> search(@NotNull String query, @NotNull List<SearchValues> by) {
+        return filmStorage.search(query, by);
     }
 
-    public List<Film> searchFilms(@NotNull @Positive Long directorId, SortValue sortValue) {
+    public List<Film> search(@NotNull @Positive Long directorId, SortValue sortValue) {
         if (directorStorage.read(directorId).isEmpty()) {
             String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, directorId);
             log.error(error);
             throw new NotFoundException(error);
         }
-        return filmStorage.searchFilms(directorId, sortValue);
+        return filmStorage.search(directorId, sortValue);
     }
 
-    private void checkFilmId(Long filmId) {
+    private void checkFilm(Long filmId) {
         Optional<Film> film = filmStorage.read(filmId);
         if (film.isEmpty()) {
             String error = String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, filmId);
@@ -142,7 +142,7 @@ public class FilmService {
         }
     }
 
-    private void checkUserId(Long userId) {
+    private void checkUser(Long userId) {
         Optional<User> user = userStorage.read(userId);
         if (user.isEmpty()) {
             String error = String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId);

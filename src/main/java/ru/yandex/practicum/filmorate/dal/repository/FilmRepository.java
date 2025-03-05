@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.dal.repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.controller.SearchValues;
-import ru.yandex.practicum.filmorate.controller.SortValue;
+import ru.yandex.practicum.filmorate.enums.SearchValues;
+import ru.yandex.practicum.filmorate.enums.SortValue;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.Timestamp;
@@ -101,7 +101,7 @@ public class FilmRepository extends BaseRepository<Film> {
             ORDER BY extract(YEAR FROM f.RELEASE_DATE)
             """;
     private static final String SEARCH_BY_DIR_LIKES_SORT = """
-                        SELECT f.*, mpa.name as mpa_name,
+            SELECT f.*, mpa.name as mpa_name,
                     string_agg(dir.id, ', ') as dir_ids, string_agg(dir.name, ', ') as dir_names,
                     string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names
             FROM film f
@@ -176,13 +176,13 @@ public class FilmRepository extends BaseRepository<Film> {
         delete(DELETE_QUERY, id);
     }
 
-    public List<Film> searchFilms(String query, List<SearchValues> by) {
+    public List<Film> search(String query, List<SearchValues> by) {
         String namePattern = by.contains(SearchValues.TITLE) ? "%" + query + "%" : "";
         String dirPattern = by.contains(SearchValues.DIRECTOR) ? "%" + query + "%" : "";
         return findMany(SEARCH_BY_QUERY, namePattern, dirPattern);
     }
 
-    public List<Film> searchFilms(Long directorId, SortValue sortValue) {
+    public List<Film> search(Long directorId, SortValue sortValue) {
         switch (sortValue) {
             case YEAR -> {
                 return findMany(SEARCH_BY_DIR_YEAR_SORT, directorId);

@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.enums.SearchValues;
+import ru.yandex.practicum.filmorate.enums.SortValue;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -93,7 +95,7 @@ public class FilmController {
                 .map(String::toUpperCase)
                 .map(SearchValues::valueOf)
                 .toList();
-        List<Film> foundedFilms = filmService.searchFilms(query, searchValues);
+        List<Film> foundedFilms = filmService.search(query, searchValues);
         log.info("Метод GET /fimls/search успешно выполнен, число найденных фильмов = {}", foundedFilms.size());
         return foundedFilms;
     }
@@ -104,7 +106,7 @@ public class FilmController {
                                   @RequestParam("sortBy") @NotNull String sortBy) {
         log.info("Вызван метод GET /films/director/{}?sortBy={}", directorId, sortBy);
         SortValue sortValue = SortValue.valueOf(sortBy.toUpperCase());
-        List<Film> foundedFilms = filmService.searchFilms(directorId, sortValue);
+        List<Film> foundedFilms = filmService.search(directorId, sortValue);
         log.info("Метод GET /films/director/{}?sortBy={} успешно выполнен, число найденных фильмов = {}",
                 directorId, sortBy, foundedFilms.size());
         return foundedFilms;
