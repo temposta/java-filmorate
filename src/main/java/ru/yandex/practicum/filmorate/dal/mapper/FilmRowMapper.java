@@ -28,17 +28,23 @@ public class FilmRowMapper implements RowMapper<Film> {
         Set<Genre> genres = new HashSet<>();
         IntStream.range(0, genreIds.size()).forEach(i -> genres.add(Genre.builder().id(Long.parseLong(genreIds.get(i))).name(genreNames.get(i)).build()));
 
+        Director director = resultSet.getString("director_name") == null ? null :
+                Director.builder()
+                        .id(resultSet.getLong("director_id"))
+                        .name(resultSet.getString("director_name"))
+                        .build();
+
         return Film.builder()
                 .id(resultSet.getLong("id"))
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
                 .duration(resultSet.getInt("duration"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
-                .mpa(Mpa.builder().id(resultSet.getLong("rating")).name(resultSet.getString("mpa_name")).build())
-                .director(Director.builder()
-                        .id(resultSet.getLong("director_id"))
-                        .name(resultSet.getString("director_name"))
+                .mpa(Mpa.builder()
+                        .id(resultSet.getLong("rating"))
+                        .name(resultSet.getString("mpa_name"))
                         .build())
+                .director(director)
                 .genres(new HashSet<>(genres))
                 .build();
     }

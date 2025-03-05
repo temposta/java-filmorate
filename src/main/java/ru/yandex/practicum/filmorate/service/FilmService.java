@@ -5,12 +5,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.SearchValues;
+import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.dal.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.dal.storage.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -30,27 +32,25 @@ public class FilmService {
     private final RatingStorage ratingStorage;
     private final GenreStorage genreStorage;
     private final LikeStorage likeStorage;
+    private final DirectorStorage directorStorage;
 
     public Film create(Film film) {
 
-        Optional<Mpa> rating = ratingStorage.read(film.getMpa().getId());
-        if (rating.isEmpty()) {
-            log.error(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId()));
-            throw new NotFoundException(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId()));
-        }
+        checkMpa(film);
 
         if (film.getGenres() != null) {
             List<Genre> genres = genreStorage.getAll();
             film.getGenres().forEach(genre -> {
                 Long id = genre.getId();
                 if (genres.stream().filter(g -> Objects.equals(g.getId(), id)).findFirst().isEmpty()) {
-                    log.error(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
-                    throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
+                    String error = String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id);
+                    log.error(error);
+                    throw new NotFoundException(error);
                 }
             });
         }
 
-        //TODO после создания directorStorage -> проверить валидность director_id при создании Фильма
+        checkDirector(film);
 
         film = filmStorage.create(film);
         log.info("Фильм создан {}", film);
@@ -67,24 +67,21 @@ public class FilmService {
             throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film.getId()));
         }
 
-        Optional<Mpa> rating = ratingStorage.read(film.getMpa().getId());
-        if (rating.isEmpty()) {
-            log.error(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId()));
-            throw new NotFoundException(String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId()));
-        }
+        checkMpa(film);
 
         if (film.getGenres() != null) {
             List<Genre> genres = genreStorage.getAll();
             film.getGenres().forEach(genre -> {
                 Long id = genre.getId();
                 if (genres.stream().filter(g -> Objects.equals(g.getId(), id)).findFirst().isEmpty()) {
-                    log.error(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
-                    throw new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id));
+                    String error = String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, id);
+                    log.error(error);
+                    throw new NotFoundException(error);
                 }
             });
         }
 
-        //TODO после создания directorStorage -> проверить валидность director_id при обновлении Фильма
+        checkDirector(film);
 
         film = filmStorage.update(film);
         log.info("Фильм обновлен {}", film);
@@ -105,12 +102,10 @@ public class FilmService {
         if (film.getGenres() != null) {
 
             Set<Genre> newGenres = new HashSet<>();
-            film.getGenres().forEach(g -> {
-                newGenres.add(genreStorage.getAll().stream()
-                        .filter(o -> Objects.equals(o.getId(), g.getId()))
-                        .findFirst()
-                        .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, g.getId()))));
-            });
+            film.getGenres().forEach(g -> newGenres.add(genreStorage.getAll().stream()
+                    .filter(o -> Objects.equals(o.getId(), g.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.GENRE_NOT_FOUND_ERROR, g.getId())))));
 
             film.setGenres(newGenres);
         }
@@ -121,8 +116,9 @@ public class FilmService {
         if (film.isPresent()) {
             return film.get();
         }
-        log.error(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, id));
-        throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, id));
+        String error = String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, id);
+        log.error(error);
+        throw new NotFoundException(error);
     }
 
     public void delete(Long id) {
@@ -134,16 +130,13 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        Optional<Film> film = filmStorage.read(filmId);
-        if (film.isEmpty()) {
-            log.error(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, filmId));
-            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, filmId));
-        }
+        checkFilmId(filmId);
 
         Optional<User> user = userStorage.read(userId);
         if (user.isEmpty()) {
-            log.error(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId));
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId));
+            String error = String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId);
+            log.error(error);
+            throw new NotFoundException(error);
         }
 
         likeStorage.create(userId, filmId);
@@ -151,16 +144,13 @@ public class FilmService {
     }
 
     public void removeLike(Long filmId, Long userId) {
-        Optional<Film> film = filmStorage.read(filmId);
-        if (film.isEmpty()) {
-            log.error(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, filmId));
-            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, filmId));
-        }
+        checkFilmId(filmId);
 
         Optional<User> user = userStorage.read(userId);
         if (user.isEmpty()) {
-            log.error(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId));
-            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId));
+            String error = String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, userId);
+            log.error(error);
+            throw new NotFoundException(error);
         }
 
         likeStorage.delete(userId, filmId);
@@ -173,5 +163,32 @@ public class FilmService {
 
     public List<Film> searchFilms(@NotNull String query, @NotNull List<SearchValues> by) {
         return filmStorage.searchFilms(query, by);
+    }
+
+    private void checkFilmId(Long filmId) {
+        Optional<Film> film = filmStorage.read(filmId);
+        if (film.isEmpty()) {
+            String error = String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, filmId);
+            log.error(error);
+            throw new NotFoundException(error);
+        }
+    }
+
+    private void checkMpa(Film film) {
+        Optional<Mpa> rating = ratingStorage.read(film.getMpa().getId());
+        if (rating.isEmpty()) {
+            String error = String.format(ExceptionMessages.RATING_NOT_FOUND_ERROR, film.getMpa().getId());
+            log.error(error);
+            throw new NotFoundException(error);
+        }
+    }
+
+    private void checkDirector(Film film) {
+        Optional<Director> director = directorStorage.read(film.getDirector().getId());
+        if (director.isEmpty()) {
+            String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, film.getDirector().getId());
+            log.error(error);
+            throw new NotFoundException(error);
+        }
     }
 }
