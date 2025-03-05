@@ -15,4 +15,6 @@ public interface DirectorStorage {
     @Valid Director create(@Valid Director director);
 
     Director update(@Valid Director director);
+
+    void delete(Long id);
 }

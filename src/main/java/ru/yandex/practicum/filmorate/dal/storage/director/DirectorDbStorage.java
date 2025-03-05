@@ -33,4 +33,9 @@ public class DirectorDbStorage implements DirectorStorage {
     public Director update(Director director) {
         return directorRepository.update(director);
     }
+
+    @Override
+    public void delete(Long id) {
+        directorRepository.delete(id);
+    }
 }

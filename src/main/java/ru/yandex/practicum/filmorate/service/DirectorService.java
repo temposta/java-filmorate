@@ -38,6 +38,19 @@ public class DirectorService {
     }
 
     public Director update(@Valid Director director) {
+        if (director.getId() == null) {
+            log.error("Не указан id режиссера {}", director);
+            throw new NotFoundException("Id должен быть указан");
+        }
+        if (directorStorage.read(director.getId()).isEmpty()) {
+            String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, director.getId());
+            log.error(error);
+            throw new NotFoundException(error);
+        }
         return directorStorage.update(director);
+    }
+
+    public void delete(Long id) {
+        directorStorage.delete(id);
     }
 }
