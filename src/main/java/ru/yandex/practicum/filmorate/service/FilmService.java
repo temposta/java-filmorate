@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.SearchValues;
+import ru.yandex.practicum.filmorate.controller.SortValue;
 import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.dal.storage.like.LikeStorage;
@@ -122,6 +124,15 @@ public class FilmService {
         return filmStorage.searchFilms(query, by);
     }
 
+    public List<Film> searchFilms(@NotNull @Positive Long directorId, SortValue sortValue) {
+        if (directorStorage.read(directorId).isEmpty()) {
+            String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, directorId);
+            log.error(error);
+            throw new NotFoundException(error);
+        }
+        return filmStorage.searchFilms(directorId, sortValue);
+    }
+
     private void checkFilmId(Long filmId) {
         Optional<Film> film = filmStorage.read(filmId);
         if (film.isEmpty()) {
@@ -176,5 +187,4 @@ public class FilmService {
             });
         }
     }
-
 }

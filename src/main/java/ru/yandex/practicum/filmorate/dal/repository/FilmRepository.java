@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.controller.SearchValues;
+import ru.yandex.practicum.filmorate.controller.SortValue;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.Timestamp;
@@ -81,6 +82,42 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String INSERT_DIRECTORS_QUERY = """
             INSERT INTO film_director (film_id, director_id)
             VALUES (?, ?)""";
+    private static final String SEARCH_BY_DIR_YEAR_SORT = """
+            SELECT f.*, mpa.name as mpa_name,
+                    string_agg(dir.id, ', ') as dir_ids, string_agg(dir.name, ', ') as dir_names,
+                    string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names
+            FROM film f
+            LEFT JOIN film_genre fg on fg.film_id = f.id
+            LEFT JOIN genre g on g.id = fg.genre_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN film_director fd on fd.film_id = f.id
+            LEFT JOIN director dir on dir.id = fd.director_id
+            LEFT JOIN likes l on l.film_id = f.id
+            WHERE f.ID in (
+                    SELECT DISTINCT fd.FILM_ID
+                    FROM film_director fd
+                    WHERE fd.DIRECTOR_ID = ?)
+            GROUP BY f.id, f.RELEASE_DATE
+            ORDER BY extract(YEAR FROM f.RELEASE_DATE) DESC
+            """;
+    private static final String SEARCH_BY_DIR_LIKES_SORT = """
+                        SELECT f.*, mpa.name as mpa_name,
+                    string_agg(dir.id, ', ') as dir_ids, string_agg(dir.name, ', ') as dir_names,
+                    string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names
+            FROM film f
+            LEFT JOIN film_genre fg on fg.film_id = f.id
+            LEFT JOIN genre g on g.id = fg.genre_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN film_director fd on fd.film_id = f.id
+            LEFT JOIN director dir on dir.id = fd.director_id
+            LEFT JOIN likes l on l.film_id = f.id
+            WHERE f.ID in (
+                    SELECT DISTINCT fd.FILM_ID
+                    FROM film_director fd
+                    WHERE fd.DIRECTOR_ID = ?)
+            GROUP BY f.id
+            ORDER BY count(l.user_id) DESC
+            """;
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -140,10 +177,20 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> searchFilms(String query, List<SearchValues> by) {
-        String namePattern;
-        String dirPattern;
-        namePattern = by.contains(SearchValues.TITLE) ? "%" + query + "%" : "";
-        dirPattern = by.contains(SearchValues.DIRECTOR) ? "%" + query + "%" : "";
+        String namePattern = by.contains(SearchValues.TITLE) ? "%" + query + "%" : "";
+        String dirPattern = by.contains(SearchValues.DIRECTOR) ? "%" + query + "%" : "";
         return findMany(SEARCH_BY_QUERY, namePattern, dirPattern);
+    }
+
+    public List<Film> searchFilms(Long directorId, SortValue sortValue) {
+        switch (sortValue) {
+            case YEAR -> {
+                return findMany(SEARCH_BY_DIR_YEAR_SORT, directorId);
+            }
+            case LIKES -> {
+                return findMany(SEARCH_BY_DIR_LIKES_SORT, directorId);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + sortValue);
+        }
     }
 }
