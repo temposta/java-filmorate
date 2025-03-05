@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.storage.director;
 
+import jakarta.validation.Valid;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.List;
@@ -11,4 +12,7 @@ public interface DirectorStorage {
 
     Optional<Director> read(Long id);
 
+    @Valid Director create(@Valid Director director);
+
+    Director update(@Valid Director director);
 }

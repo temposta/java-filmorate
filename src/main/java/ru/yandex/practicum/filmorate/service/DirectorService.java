@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,5 +31,13 @@ public class DirectorService {
         String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, id);
         log.error(error);
         throw new NotFoundException(error);
+    }
+
+    public @Valid Director create(@Valid Director director) {
+        return directorStorage.create(director);
+    }
+
+    public Director update(@Valid Director director) {
+        return directorStorage.update(director);
     }
 }

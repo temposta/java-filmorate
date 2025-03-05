@@ -23,4 +23,14 @@ public class DirectorDbStorage implements DirectorStorage {
     public Optional<Director> read(Long id) {
         return directorRepository.findById(id);
     }
+
+    @Override
+    public Director create(Director director) {
+        return directorRepository.create(director);
+    }
+
+    @Override
+    public Director update(Director director) {
+        return directorRepository.update(director);
+    }
 }
