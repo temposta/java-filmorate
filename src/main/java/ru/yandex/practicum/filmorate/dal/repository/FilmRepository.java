@@ -122,6 +122,17 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String DELETE_GENRES_DIRECTORS_QUERY = """
             DELETE FROM film_genre WHERE film_id = ?;
             DELETE FROM film_director WHERE film_id = ?;""";
+    private static final String GET_COMMON_FILMS = "SELECT f.*, r.id AS mpa_id, r.name AS mpa_name, string_agg(g.id, ', ') " +
+            " as genre_ids, string_agg(g.name, ', ') as genre_names " +
+            "FROM likes AS l " +
+            "JOIN film AS f ON l.film_id = f.id " +
+            "JOIN genre g on g.id = fg.genre_id " +
+            "JOIN film_genre AS fg on fg.film_id = f.id " +
+            "JOIN rating r ON f.rating = r.id " +
+            "WHERE l.user_id = ? " +
+            "AND l.film_id IN (SELECT fl.film_id FROM likes AS fl WHERE fl.user_id = ?) " +
+            "GROUP BY f.id " +
+            "ORDER BY f.rating DESC ";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -186,6 +197,10 @@ public class FilmRepository extends BaseRepository<Film> {
             default -> throw new IllegalStateException("Unexpected value: " + sortValue);
         }
     }
+  
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return jdbc.query(GET_COMMON_FILMS, mapper, userId, friendId);
+    }
 
     private void insertGenresAndDirectors(Film film, Long id) {
         if (film.getGenres() != null) {
@@ -199,4 +214,5 @@ public class FilmRepository extends BaseRepository<Film> {
             jdbc.batchUpdate(INSERT_DIRECTORS_QUERY, batchParam);
         }
     }
+
 }
