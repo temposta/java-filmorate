@@ -10,17 +10,11 @@ import java.util.Optional;
 
 @Repository
 public class DirectorRepository extends BaseRepository<Director> {
-    private static final String FIND_ALL_QUERY = """
-            SELECT * FROM director""";
-    private static final String FIND_BY_ID_QUERY = """
-            SELECT * FROM director WHERE id = ?""";
-    private static final String INSERT_QUERY = """
-            INSERT INTO director (name) VALUES (?)""";
-    private static final String UPDATE_QUERY = """
-            UPDATE director SET name=? WHERE id=?""";
-    private static final String DELETE_QUERY = """
-            DELETE FROM director WHERE id = ?
-            """;
+    private static final String FIND_ALL_QUERY = "SELECT * FROM director";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM director WHERE id = ?";
+    private static final String INSERT_QUERY = "INSERT INTO director (name) VALUES (?)";
+    private static final String UPDATE_QUERY = "UPDATE director SET name=? WHERE id=?";
+    private static final String DELETE_QUERY = "DELETE FROM director WHERE id = ?";
 
     public DirectorRepository(JdbcTemplate jdbc, RowMapper<Director> mapper) {
         super(jdbc, mapper);

@@ -186,21 +186,16 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> search(String query, List<SearchValues> by) {
-        String namePattern = by.contains(SearchValues.TITLE) ? "%" + query + "%" : "";
-        String dirPattern = by.contains(SearchValues.DIRECTOR) ? "%" + query + "%" : "";
-        return findMany(SEARCH_BY_QUERY, namePattern, dirPattern);
+        String titlePattern = by.contains(SearchValues.TITLE) ? "%" + query + "%" : "";
+        String directorPattern = by.contains(SearchValues.DIRECTOR) ? "%" + query + "%" : "";
+        return findMany(SEARCH_BY_QUERY, titlePattern, directorPattern);
     }
 
     public List<Film> search(Long directorId, SortValue sortValue) {
-        switch (sortValue) {
-            case YEAR -> {
-                return findMany(SEARCH_BY_DIR_YEAR_SORT, directorId);
-            }
-            case LIKES -> {
-                return findMany(SEARCH_BY_DIR_LIKES_SORT, directorId);
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + sortValue);
-        }
+        return findMany(switch (sortValue) {
+            case YEAR -> SEARCH_BY_DIR_YEAR_SORT;
+            case LIKES -> SEARCH_BY_DIR_LIKES_SORT;
+        }, directorId);
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {

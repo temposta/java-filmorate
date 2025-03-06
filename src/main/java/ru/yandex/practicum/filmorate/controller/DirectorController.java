@@ -43,7 +43,7 @@ public class DirectorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Director save(@Valid @RequestBody Director director) {
+    public Director create(@Valid @RequestBody Director director) {
         log.info("Получен запрос на создание режиссера: {}", director);
         director = directorService.create(director);
         log.info("Создан режиссер - {}", director);
