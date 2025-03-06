@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.enums.SearchValues;
 import ru.yandex.practicum.filmorate.enums.SortValue;
 import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
-import ru.yandex.practicum.filmorate.dal.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.dal.storage.like.LikeStorage;
@@ -38,7 +37,6 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final LikeStorage likeStorage;
     private final DirectorStorage directorStorage;
-    private final FilmRepository filmRepository;
 
     public Film create(Film film) {
         checkMpa(film);
@@ -140,7 +138,7 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
+        List<Film> commonFilms = filmStorage.getCommonFilms(userId, friendId);
         log.info("Получен список общих фильмов. Количество: {}", commonFilms.size());
         return commonFilms;
     }

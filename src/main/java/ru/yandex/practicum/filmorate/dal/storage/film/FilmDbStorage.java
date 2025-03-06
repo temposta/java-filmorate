@@ -42,6 +42,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmRepository.getCommonFilms(userId, friendId);
+    }
+
+    @Override
     public Film create(Film film) {
         return filmRepository.create(film);
     }

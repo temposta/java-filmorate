@@ -59,8 +59,6 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String INSERT_GENRES_QUERY = """
             INSERT INTO film_genre (film_id, genre_id)
             VALUES (?, ?)""";
-    private static final String DELETE_GENRES_QUERY = """
-            DELETE FROM film_genre WHERE film_id = ?""";
     private static final String UPDATE_QUERY = """
             UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, rating = ?
             WHERE id = ?""";
@@ -78,8 +76,6 @@ public class FilmRepository extends BaseRepository<Film> {
             WHERE f.name ILIKE ? OR dir.name ILIKE ?
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC""";
-    private static final String DELETE_DIRECTORS_QUERY = """
-            DELETE FROM film_director WHERE film_id = ?""";
     private static final String INSERT_DIRECTORS_QUERY = """
             INSERT INTO film_director (film_id, director_id)
             VALUES (?, ?)""";
@@ -122,17 +118,26 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String DELETE_GENRES_DIRECTORS_QUERY = """
             DELETE FROM film_genre WHERE film_id = ?;
             DELETE FROM film_director WHERE film_id = ?;""";
-    private static final String GET_COMMON_FILMS = "SELECT f.*, r.id AS mpa_id, r.name AS mpa_name, string_agg(g.id, ', ') " +
-                                                   " as genre_ids, string_agg(g.name, ', ') as genre_names " +
-                                                   "FROM likes AS l " +
-                                                   "JOIN film AS f ON l.film_id = f.id " +
-                                                   "JOIN genre g on g.id = fg.genre_id " +
-                                                   "JOIN film_genre AS fg on fg.film_id = f.id " +
-                                                   "JOIN rating r ON f.rating = r.id " +
-                                                   "WHERE l.user_id = ? " +
-                                                   "AND l.film_id IN (SELECT fl.film_id FROM likes AS fl WHERE fl.user_id = ?) " +
-                                                   "GROUP BY f.id " +
-                                                   "ORDER BY f.rating DESC ";
+    private static final String GET_COMMON_FILMS = """
+            SELECT f.*, mpa.name as mpa_name,
+                string_agg(dir.id, ', ') as dir_ids, string_agg(dir.name, ', ') as dir_names,
+                string_agg(g.id, ', ') as genre_ids, string_agg(g.name, ', ') as genre_names
+            FROM film f
+            LEFT JOIN film_genre fg on fg.film_id = f.id
+            LEFT JOIN genre g on g.id = fg.genre_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN film_director fd on fd.film_id = f.id
+            LEFT JOIN director dir on dir.id = fd.director_id
+            LEFT JOIN likes l on l.film_id = f.id
+            WHERE f.ID in (
+                    SELECT FILM_ID
+                    FROM LIKES
+                    WHERE USER_ID IN (?, ?)
+                    GROUP BY FILM_ID
+                    HAVING COUNT(FILM_ID) > 1)
+            GROUP BY f.id
+            ORDER BY count(l.user_id) DESC
+            """;
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
