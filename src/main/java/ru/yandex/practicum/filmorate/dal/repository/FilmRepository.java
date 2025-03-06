@@ -175,8 +175,8 @@ public class FilmRepository extends BaseRepository<Film> {
         return film;
     }
 
-    public void delete(Long id) {
-        delete(DELETE_QUERY, id);
+    public boolean delete(Long id) {
+        return delete(DELETE_QUERY, id);
     }
 
     public List<Film> search(String query, List<SearchValues> by) {

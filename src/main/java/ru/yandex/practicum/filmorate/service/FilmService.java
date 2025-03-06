@@ -95,7 +95,9 @@ public class FilmService {
     }
 
     public void delete(Long id) {
-        filmStorage.delete(id);
+        if (!filmStorage.delete(id)) {
+            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, id));
+        }
     }
 
     public List<Film> getAll() {
