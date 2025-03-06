@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,6 +119,9 @@ public class FilmRepository extends BaseRepository<Film> {
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC
             """;
+    private static final String DELETE_GENRES_DIRECTORS_QUERY = """
+            DELETE FROM film_genre WHERE film_id = ?;
+            DELETE FROM film_director WHERE film_id = ?;""";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -143,12 +147,7 @@ public class FilmRepository extends BaseRepository<Film> {
                 film.getDuration(),
                 film.getMpa() == null ? null : film.getMpa().getId());
         film.setId(id);
-        if (film.getGenres() != null) {
-            film.getGenres().forEach(genre -> insert(INSERT_GENRES_QUERY, id, genre.getId()));
-        }
-        if (film.getDirectors() != null) {
-            film.getDirectors().forEach(director -> insert(INSERT_DIRECTORS_QUERY, id, director.getId()));
-        }
+        insertGenresAndDirectors(film, id);
         return film;
     }
 
@@ -161,17 +160,8 @@ public class FilmRepository extends BaseRepository<Film> {
                 film.getDuration(),
                 film.getMpa() == null ? null : film.getMpa().getId(),
                 id);
-
-        delete(DELETE_GENRES_QUERY, id);
-        delete(DELETE_DIRECTORS_QUERY, id);
-        if (film.getGenres() != null) {
-            film.getGenres().forEach(genre -> insert(INSERT_GENRES_QUERY, film.getId(), genre.getId()));
-        }
-        if (film.getDirectors() != null) {
-            List<Object[]> batchParam = new java.util.ArrayList<>(List.of());
-            film.getDirectors().forEach(director -> batchParam.add(new Object[]{id, director.getId()}));
-            jdbc.batchUpdate(INSERT_DIRECTORS_QUERY, batchParam);
-        }
+        delete(DELETE_GENRES_DIRECTORS_QUERY, id, id);
+        insertGenresAndDirectors(film, id);
         return film;
     }
 
@@ -194,6 +184,19 @@ public class FilmRepository extends BaseRepository<Film> {
                 return findMany(SEARCH_BY_DIR_LIKES_SORT, directorId);
             }
             default -> throw new IllegalStateException("Unexpected value: " + sortValue);
+        }
+    }
+
+    private void insertGenresAndDirectors(Film film, Long id) {
+        if (film.getGenres() != null) {
+            List<Object[]> batchParam = new ArrayList<>(List.of());
+            film.getGenres().forEach(genre -> batchParam.add(new Object[] {id, genre.getId()}));
+            jdbc.batchUpdate(INSERT_GENRES_QUERY, batchParam);
+        }
+        if (film.getDirectors() != null) {
+            List<Object[]> batchParam = new ArrayList<>(List.of());
+            film.getDirectors().forEach(director -> batchParam.add(new Object[]{id, director.getId()}));
+            jdbc.batchUpdate(INSERT_DIRECTORS_QUERY, batchParam);
         }
     }
 }

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,8 +87,8 @@ public class FilmController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> searchFilms(@RequestParam("query") @NotNull String query,
-                                  @RequestParam("by") @NotNull List<String> by) {
+    public List<Film> searchFilms(@RequestParam("query") String query,
+                                  @RequestParam("by") List<String> by) {
         log.info("Вызван метод GET /fimls/search с параметрами query = {}, by = {}", query, by.toString());
         List<SearchValues> searchValues = by.stream()
                 .map(String::toUpperCase)
@@ -102,8 +101,8 @@ public class FilmController {
 
     @GetMapping("director/{directorId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> searchFilms(@PathVariable @NotNull @Positive Long directorId,
-                                  @RequestParam("sortBy") @NotNull String sortBy) {
+    public List<Film> searchFilms(@PathVariable @Positive Long directorId,
+                                  @RequestParam("sortBy") String sortBy) {
         log.info("Вызван метод GET /films/director/{}?sortBy={}", directorId, sortBy);
         SortValue sortValue = SortValue.valueOf(sortBy.toUpperCase());
         List<Film> foundedFilms = filmService.search(directorId, sortValue);
