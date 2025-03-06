@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,11 +33,11 @@ public class DirectorService {
         throw new NotFoundException(error);
     }
 
-    public @Valid Director create(@Valid Director director) {
+    public Director create(Director director) {
         return directorStorage.create(director);
     }
 
-    public Director update(@Valid Director director) {
+    public Director update(Director director) {
         if (director.getId() == null) {
             log.error("Не указан id режиссера {}", director);
             throw new ValidationException("Id должен быть указан");

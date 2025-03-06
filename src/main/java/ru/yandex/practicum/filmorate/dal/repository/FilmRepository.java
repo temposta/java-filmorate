@@ -74,7 +74,7 @@ public class FilmRepository extends BaseRepository<Film> {
             LEFT JOIN film_director fd on fd.film_id = f.id
             LEFT JOIN director dir on dir.id = fd.director_id
             LEFT JOIN likes l on l.film_id = f.id
-            WHERE f.name LIKE ? OR dir.name LIKE ?
+            WHERE f.name ILIKE ? OR dir.name ILIKE ?
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC""";
     private static final String DELETE_DIRECTORS_QUERY = """
