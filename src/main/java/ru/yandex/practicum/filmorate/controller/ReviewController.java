@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
@@ -27,9 +28,12 @@ public class ReviewController {
      * @return Созданный отзыв.
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Review createReview(@Valid @RequestBody Review review) {
         log.info("Создание отзыва: {}", review);
-        return reviewService.createReview(review);
+        review = reviewService.createReview(review);
+        log.info("Отзыв создан: {}", review);
+        return review;
     }
 
     /**
@@ -41,7 +45,9 @@ public class ReviewController {
     @PutMapping
     public Review updateReview(@Valid @RequestBody Review review) {
         log.info("Обновление отзыва: {}", review);
-        return reviewService.updateReview(review);
+        review = reviewService.updateReview(review);
+        log.info("Отзыв обновлен: {}", review);
+        return review;
     }
 
     /**
@@ -79,7 +85,9 @@ public class ReviewController {
             @RequestParam(required = false) Long filmId,
             @RequestParam(defaultValue = "10") Integer count) {
         log.info("Получение отзывов для filmId: {}, count: {}", filmId, count);
-        return reviewService.getAllReviews(filmId, count);
+        Collection<Review> reviews = reviewService.getAllReviews(filmId, count);
+        log.info("Получено {} отзывов для filmId: {}", reviews.size(), filmId);
+        return reviews;
     }
 
     /**

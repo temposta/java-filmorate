@@ -3,11 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.repository.ReviewRepository;
+import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.dal.storage.review.ReviewStorage;
+import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Сервис для работы с отзывами.
@@ -17,7 +23,9 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
+    private final ReviewStorage reviewStorage;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
     /**
      * Создает новый отзыв.
@@ -26,7 +34,22 @@ public class ReviewService {
      * @return Созданный отзыв.
      */
     public Review createReview(Review review) {
-        return reviewRepository.create(review);
+        validateReview(review); // Проверка валидности отзыва
+        return reviewStorage.create(review);
+    }
+
+    private void validateReview(Review review) {
+        Optional<User> user = userStorage.read(review.getUserId());
+        if (user.isEmpty()) {
+            log.error(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, review.getUserId()));
+            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, review.getUserId()));
+        }
+
+        Optional<Film> film = filmStorage.read(review.getFilmId());
+        if (film.isEmpty()) {
+            log.error(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film);
+            throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, review.getFilmId()));
+        }
     }
 
     /**
@@ -36,8 +59,9 @@ public class ReviewService {
      * @return Обновленный отзыв.
      */
     public Review updateReview(Review review) {
-        getReviewById(review.getId()); // Проверка существования отзыва
-        return reviewRepository.update(review);
+        getReviewById(review.getReviewId()); // Проверка существования отзыва
+        validateReview(review); // Проверка валидности отзыва
+        return reviewStorage.update(review).orElseThrow();
     }
 
     /**
@@ -47,7 +71,7 @@ public class ReviewService {
      */
     public void deleteReview(Long id) {
         getReviewById(id); // Проверка существования отзыва
-        reviewRepository.delete(id);
+        reviewStorage.delete(id);
     }
 
     /**
@@ -58,8 +82,8 @@ public class ReviewService {
      * @throws NotFoundException если отзыв с указанным ID не найден.
      */
     public Review getReviewById(Long id) {
-        return reviewRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Review with id " + id + " not found"));
+        return reviewStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.REVIEW_NOT_FOUND_ERROR, id)));
     }
 
     /**
@@ -70,7 +94,7 @@ public class ReviewService {
      * @return Коллекция отзывов для указанного фильма.
      */
     public Collection<Review> getAllReviews(Long filmId, Integer count) {
-        return reviewRepository.findAll(filmId, count);
+        return reviewStorage.findAll(filmId, count);
     }
 
     /**
@@ -81,7 +105,8 @@ public class ReviewService {
      */
     public void addLike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
-        reviewRepository.setLike(reviewId, userId, true);
+        reviewStorage.deleteLike(reviewId, userId, false); // Удаление лайка, если он уже есть
+        reviewStorage.setLike(reviewId, userId, true);
     }
 
     /**
@@ -92,7 +117,8 @@ public class ReviewService {
      */
     public void addDislike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
-        reviewRepository.setLike(reviewId, userId, false);
+        reviewStorage.deleteLike(reviewId, userId, true);
+        reviewStorage.setLike(reviewId, userId, false);
     }
 
     /**
@@ -103,7 +129,7 @@ public class ReviewService {
      */
     public void deleteLike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
-        reviewRepository.deleteLike(reviewId, userId, true);
+        reviewStorage.deleteLike(reviewId, userId, true);
     }
 
     /**
@@ -114,7 +140,7 @@ public class ReviewService {
      */
     public void deleteDislike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
-        reviewRepository.deleteLike(reviewId, userId, false);
+        reviewStorage.deleteLike(reviewId, userId, false);
     }
 }
 

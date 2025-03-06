@@ -6,14 +6,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.yandex.practicum.filmorate.dal.repository.ReviewRepository;
+import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.dal.storage.review.ReviewStorage;
+import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Collection;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,19 +22,43 @@ import static org.mockito.Mockito.*;
 class ReviewServiceTest {
 
     @Mock
-    private ReviewRepository reviewRepository;
+    private ReviewStorage reviewStorage;
+
+    @Mock
+    private FilmStorage filmStorage;
+
+    @Mock
+    private UserStorage userStorage;
 
     @InjectMocks
     private ReviewService reviewService;
 
     private Review review;
+    private User testUser;
+    private Film testFilm;
 
     @BeforeEach
     void setUp() {
-        review = Review.builder()
+        testUser = User.builder()
                 .id(1L)
-                .filmId(1L)
-                .userId(1L)
+                .email("test@example.com")
+                .login("testLogin")
+                .name("Test User")
+                .birthday(LocalDate.of(2000, 6, 15))
+                .build();
+
+        testFilm = Film.builder()
+                .id(1L)
+                .name("Test Film")
+                .description("Test Description")
+                .mpa(new Mpa(1L, "G"))
+                .genres(Set.of(new Genre(1L, "Комедия")))
+                .build();
+
+        review = Review.builder()
+                .reviewId(1L)
+                .filmId(testFilm.getId())
+                .userId(testUser.getId())
                 .content("Test review")
                 .isPositive(true)
                 .useful(0)
@@ -42,71 +66,49 @@ class ReviewServiceTest {
     }
 
     @Test
-    void createReview() {
-        when(reviewRepository.create(review)).thenReturn(review);
-
-        Review createdReview = reviewService.createReview(review);
-
-        assertEquals(review, createdReview);
-        verify(reviewRepository, times(1)).create(review);
-    }
-
-    @Test
-    void updateReview() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
-        when(reviewRepository.update(review)).thenReturn(review);
-
-        Review updatedReview = reviewService.updateReview(review);
-
-        assertEquals(review, updatedReview);
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, times(1)).update(review);
-    }
-
-    @Test
     void updateReviewNotFound() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.empty());
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> reviewService.updateReview(review));
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, never()).update(review);
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, never()).update(review);
     }
 
     @Test
     void deleteReview() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
 
-        reviewService.deleteReview(review.getId());
+        reviewService.deleteReview(review.getReviewId());
 
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, times(1)).delete(review.getId());
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, times(1)).delete(review.getReviewId());
     }
 
     @Test
     void deleteReviewNotFound() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.empty());
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> reviewService.deleteReview(review.getId()));
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, never()).delete(review.getId());
+        assertThrows(NotFoundException.class, () -> reviewService.deleteReview(review.getReviewId()));
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, never()).delete(review.getReviewId());
     }
 
     @Test
     void getReviewById() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
 
-        Review foundReview = reviewService.getReviewById(review.getId());
+        Review foundReview = reviewService.getReviewById(review.getReviewId());
 
         assertEquals(review, foundReview);
-        verify(reviewRepository, times(1)).findById(review.getId());
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
     }
 
     @Test
     void getReviewByIdNotFound() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.empty());
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> reviewService.getReviewById(review.getId()));
-        verify(reviewRepository, times(1)).findById(review.getId());
+        assertThrows(NotFoundException.class, () -> reviewService.getReviewById(review.getReviewId()));
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
     }
 
     @Test
@@ -114,87 +116,87 @@ class ReviewServiceTest {
         List<Review> reviews = new ArrayList<>();
         reviews.add(review);
 
-        when(reviewRepository.findAll(review.getFilmId(), 10)).thenReturn(reviews);
+        when(reviewStorage.findAll(review.getFilmId(), 10)).thenReturn(reviews);
 
         Collection<Review> foundReviews = reviewService.getAllReviews(review.getFilmId(), 10);
 
         assertEquals(reviews, foundReviews);
-        verify(reviewRepository, times(1)).findAll(review.getFilmId(), 10);
+        verify(reviewStorage, times(1)).findAll(review.getFilmId(), 10);
     }
 
     @Test
     void addLike() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
 
-        reviewService.addLike(review.getId(), 1L);
+        reviewService.addLike(review.getReviewId(), 1L);
 
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, times(1)).setLike(review.getId(), 1L, true);
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, times(1)).setLike(review.getReviewId(), 1L, true);
     }
 
     @Test
     void addLikeNotFound() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.empty());
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> reviewService.addLike(review.getId(), 1L));
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, never()).setLike(review.getId(), 1L, true);
+        assertThrows(NotFoundException.class, () -> reviewService.addLike(review.getReviewId(), 1L));
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, never()).setLike(review.getReviewId(), 1L, true);
     }
 
     @Test
     void addDislike() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
 
-        reviewService.addDislike(review.getId(), 1L);
+        reviewService.addDislike(review.getReviewId(), 1L);
 
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, times(1)).setLike(review.getId(), 1L, false);
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, times(1)).setLike(review.getReviewId(), 1L, false);
     }
 
     @Test
     void addDislikeNotFound() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.empty());
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> reviewService.addDislike(review.getId(), 1L));
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, never()).setLike(review.getId(), 1L, false);
+        assertThrows(NotFoundException.class, () -> reviewService.addDislike(review.getReviewId(), 1L));
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, never()).setLike(review.getReviewId(), 1L, false);
     }
 
     @Test
     void deleteLike() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
 
-        reviewService.deleteLike(review.getId(), 1L);
+        reviewService.deleteLike(review.getReviewId(), 1L);
 
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, times(1)).deleteLike(review.getId(), 1L, true);
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L, true);
     }
 
     @Test
     void deleteLikeNotFound() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.empty());
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> reviewService.deleteLike(review.getId(), 1L));
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, never()).deleteLike(review.getId(), 1L, true);
+        assertThrows(NotFoundException.class, () -> reviewService.deleteLike(review.getReviewId(), 1L));
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L, true);
     }
 
     @Test
     void deleteDislike() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
 
-        reviewService.deleteDislike(review.getId(), 1L);
+        reviewService.deleteDislike(review.getReviewId(), 1L);
 
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, times(1)).deleteLike(review.getId(), 1L, false);
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L, false);
     }
 
     @Test
     void deleteDislikeNotFound() {
-        when(reviewRepository.findById(review.getId())).thenReturn(Optional.empty());
+        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> reviewService.deleteDislike(review.getId(), 1L));
-        verify(reviewRepository, times(1)).findById(review.getId());
-        verify(reviewRepository, never()).deleteLike(review.getId(), 1L, false);
+        assertThrows(NotFoundException.class, () -> reviewService.deleteDislike(review.getReviewId(), 1L));
+        verify(reviewStorage, times(1)).findById(review.getReviewId());
+        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L, false);
     }
 }

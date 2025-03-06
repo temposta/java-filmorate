@@ -11,8 +11,8 @@ import java.util.Optional;
 @Repository
 public class ReviewRepository extends BaseRepository<Review> {
 
-    private static final String INSERT_QUERY = "INSERT INTO reviews (content, is_positive, user_id, film_id, useful) " +
-            "VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_QUERY = "INSERT INTO reviews (content, is_positive, user_id, film_id) " +
+            "VALUES (?, ?, ?, ?)";
 
     private static final String UPDATE_QUERY = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
     private static final String DELETE_QUERY = "DELETE FROM reviews WHERE review_id = ?";
@@ -23,7 +23,7 @@ public class ReviewRepository extends BaseRepository<Review> {
     private static final String SET_LIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_positive) VALUES (?, ?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? and is_positive = ?";
     private static final String UPDATE_USEFUL_QUERY = "UPDATE reviews r SET useful = " +
-            "(SELECT COUNT(CASE WHEN rl.is_positive THEN 1 END) - COUNT(CASE WHEN NOT rl.is_positive THEN 1 END) " +
+            "(SELECT COALESCE(COUNT(CASE WHEN rl.is_positive THEN 1 END) - COUNT(CASE WHEN NOT rl.is_positive THEN 1 END), 0) " +
             "FROM review_likes rl WHERE rl.review_id = r.review_id) " +
             "WHERE r.review_id = ?";
 
@@ -37,21 +37,22 @@ public class ReviewRepository extends BaseRepository<Review> {
                 review.getContent(),
                 review.getIsPositive(),
                 review.getUserId(),
-                review.getFilmId(),
-                0 // Initial useful rating is 0
+                review.getFilmId()
         );
-        review.setId(id);
+        review.setReviewId(id);
+        review.setUseful(0);
 
         return review;
     }
 
-    public Review update(Review review) {
+    public Optional<Review> update(Review review) {
         update(UPDATE_QUERY,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getId());
-        updateUsefulRating(review.getId());
-        return review;
+                review.getReviewId());
+        updateUsefulRating(review.getReviewId());
+
+        return findOne(FIND_BY_ID_QUERY, review.getReviewId());
     }
 
     public void delete(Long id) {
