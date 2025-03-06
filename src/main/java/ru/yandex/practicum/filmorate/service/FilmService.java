@@ -138,7 +138,7 @@ public class FilmService {
         }
         return filmStorage.search(directorId, sortValue);
     }
-  
+
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
         log.info("Получен список общих фильмов. Количество: {}", commonFilms.size());
