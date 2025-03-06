@@ -54,14 +54,9 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String INSERT_QUERY = """
             INSERT INTO film (name, description, release_date, duration, rating)
             VALUES (?, ?, ?, ?, ?)""";
-    private static final String DELETE_QUERY = """
-            DELETE FROM film WHERE id = ?""";
-    private static final String INSERT_GENRES_QUERY = """
-            INSERT INTO film_genre (film_id, genre_id)
-            VALUES (?, ?)""";
-    private static final String UPDATE_QUERY = """
-            UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, rating = ?
-            WHERE id = ?""";
+    private static final String DELETE_QUERY = "DELETE FROM film WHERE id = ?";
+    private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
+    private static final String UPDATE_QUERY = "UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, rating = ? WHERE id = ?";
     private static final String SEARCH_BY_QUERY = """
             SELECT f.*, mpa.name as mpa_name,
                     string_agg(dir.id, ', ') as dir_ids, string_agg(dir.name, ', ') as dir_names,
@@ -76,9 +71,7 @@ public class FilmRepository extends BaseRepository<Film> {
             WHERE f.name ILIKE ? OR dir.name ILIKE ?
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC""";
-    private static final String INSERT_DIRECTORS_QUERY = """
-            INSERT INTO film_director (film_id, director_id)
-            VALUES (?, ?)""";
+    private static final String INSERT_DIRECTORS_QUERY = "INSERT INTO film_director (film_id, director_id) VALUES (?, ?)";
     private static final String SEARCH_BY_DIR_YEAR_SORT = """
             SELECT f.*, mpa.name as mpa_name,
                     string_agg(dir.id, ', ') as dir_ids, string_agg(dir.name, ', ') as dir_names,
@@ -115,9 +108,8 @@ public class FilmRepository extends BaseRepository<Film> {
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC
             """;
-    private static final String DELETE_GENRES_DIRECTORS_QUERY = """
-            DELETE FROM film_genre WHERE film_id = ?;
-            DELETE FROM film_director WHERE film_id = ?;""";
+    private static final String DELETE_GENRES_DIRECTORS_QUERY = "DELETE FROM film_genre WHERE film_id = ?;\n" +
+                                                                "DELETE FROM film_director WHERE film_id = ?;";
     private static final String GET_COMMON_FILMS = """
             SELECT f.*, mpa.name as mpa_name,
                 string_agg(dir.id, ', ') as dir_ids, string_agg(dir.name, ', ') as dir_names,
@@ -192,10 +184,12 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public List<Film> search(Long directorId, SortValue sortValue) {
-        return findMany(switch (sortValue) {
-            case YEAR -> SEARCH_BY_DIR_YEAR_SORT;
-            case LIKES -> SEARCH_BY_DIR_LIKES_SORT;
-        }, directorId);
+        return findMany(
+                switch (sortValue) {
+                    case YEAR -> SEARCH_BY_DIR_YEAR_SORT;
+                    case LIKES -> SEARCH_BY_DIR_LIKES_SORT;
+                },
+                directorId);
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
