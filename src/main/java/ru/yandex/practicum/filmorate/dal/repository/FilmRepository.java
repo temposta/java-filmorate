@@ -33,17 +33,17 @@ public class FilmRepository extends BaseRepository<Film> {
             "LEFT JOIN likes l on l.film_id = f.id " +
             "GROUP BY f.id " +
             "ORDER BY count(l.user_id) DESC limit ?";
-    private static final String GET_COMMON_FILMS = "SELECT f.*, r.id AS mpa_id, r.name AS mpa_name, string_agg(g.id, ', ')" +
+    private static final String GET_COMMON_FILMS = "SELECT f.*, r.id AS mpa_id, r.name AS mpa_name, string_agg(g.id, ', ') " +
             " as genre_ids, string_agg(g.name, ', ') as genre_names " +
-            " FROM likes AS l" +
-            " JOIN film AS f ON l.film_id = f.id " +
-            " JOIN genre g on g.id = fg.genre_id " +
-            " JOIN film_genre AS fg on fg.film_id = f.id " +
-            " JOIN rating r ON f.rating = r.id " +
-            " WHERE l.user_id = ? " +
-            " AND l.film_id IN (SELECT fl.film_id FROM likes AS fl WHERE fl.user_id = ?) " +
-            " GROUP BY f.id " +
-            " ORDER BY f.rating DESC ";
+            "FROM likes AS l " +
+            "JOIN film AS f ON l.film_id = f.id " +
+            "JOIN genre g on g.id = fg.genre_id " +
+            "JOIN film_genre AS fg on fg.film_id = f.id " +
+            "JOIN rating r ON f.rating = r.id " +
+            "WHERE l.user_id = ? " +
+            "AND l.film_id IN (SELECT fl.film_id FROM likes AS fl WHERE fl.user_id = ?) " +
+            "GROUP BY f.id " +
+            "ORDER BY f.rating DESC ";
     private static final String INSERT_QUERY = "INSERT INTO film (name, description, release_date, duration, rating) VALUES (?, ?, ?, ?, ?)";
     private static final String DELETE_QUERY = "DELETE FROM film WHERE id = ?";
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
