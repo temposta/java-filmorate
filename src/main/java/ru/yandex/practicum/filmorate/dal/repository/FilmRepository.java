@@ -153,21 +153,24 @@ public class FilmRepository extends BaseRepository<Film> {
     }
 
     public Film update(Film film) {
+        Long id = film.getId();
         update(UPDATE_QUERY,
                 film.getName(),
                 film.getDescription(),
                 Timestamp.from(film.getReleaseDate().atStartOfDay().toInstant(ZoneOffset.UTC)),
                 film.getDuration(),
                 film.getMpa() == null ? null : film.getMpa().getId(),
-                film.getId());
+                id);
 
-        delete(DELETE_GENRES_QUERY, film.getId());
-        delete(DELETE_DIRECTORS_QUERY, film.getId());
+        delete(DELETE_GENRES_QUERY, id);
+        delete(DELETE_DIRECTORS_QUERY, id);
         if (film.getGenres() != null) {
             film.getGenres().forEach(genre -> insert(INSERT_GENRES_QUERY, film.getId(), genre.getId()));
         }
         if (film.getDirectors() != null) {
-            film.getDirectors().forEach(director -> insert(INSERT_DIRECTORS_QUERY, film.getId(), director.getId()));
+            List<Object[]> batchParam = new java.util.ArrayList<>(List.of());
+            film.getDirectors().forEach(director -> batchParam.add(new Object[]{id, director.getId()}));
+            jdbc.batchUpdate(INSERT_DIRECTORS_QUERY, batchParam);
         }
         return film;
     }
