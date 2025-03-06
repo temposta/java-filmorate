@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -128,11 +126,11 @@ public class FilmService {
         return filmStorage.getPopularFilms(count);
     }
 
-    public List<Film> search(@NotNull String query, @NotNull List<SearchValues> by) {
+    public List<Film> search(String query, List<SearchValues> by) {
         return filmStorage.search(query, by);
     }
 
-    public List<Film> search(@NotNull @Positive Long directorId, SortValue sortValue) {
+    public List<Film> search(Long directorId, SortValue sortValue) {
         if (directorStorage.read(directorId).isEmpty()) {
             String error = String.format(ExceptionMessages.DIRECTOR_NOT_FOUND_ERROR, directorId);
             log.error(error);
