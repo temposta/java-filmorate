@@ -18,6 +18,9 @@ import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import java.util.List;
 
+/**
+ * Контроллер для обработки запросов, связанных с режиссерами.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -25,45 +28,71 @@ import java.util.List;
 public class DirectorController {
     private final DirectorService directorService;
 
+    /**
+     * Получает всех режиссеров фильмов
+     *
+     * @return Список режиссеров фильмов
+     */
     @GetMapping
     public List<Director> findAll() {
-        log.info("Запрос на получение всех режиссеров");
+        log.info("Получение всех режиссеров");
         List<Director> directors = directorService.findAll();
-        log.info("Получен список режиссеров - {}", directors);
+        log.info("Получен список всех режиссеров: {}", directors);
         return directors;
     }
 
+    /**
+     * Получает режиссера по его id
+     *
+     * @param id ID директора для получения.
+     * @return режиссер с указанным id.
+     */
     @GetMapping("/{id}")
     public Director findById(@PathVariable Long id) {
-        log.info("Запрос на получение режиссера с id = {}", id);
+        log.info("Получение режиссера с id: {}", id);
         Director director = directorService.findById(id);
-        log.info("Получен режиссер - {}", director);
+        log.info("Получен режиссер: {}", director);
         return director;
     }
 
+    /**
+     * Создает нового режиссера.
+     *
+     * @param director Режиссер для создания.
+     * @return Созданный режиссер.
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Director create(@Valid @RequestBody Director director) {
-        log.info("Получен запрос на создание режиссера: {}", director);
+        log.info("Cозданиe режиссера: {}", director);
         director = directorService.create(director);
-        log.info("Создан режиссер - {}", director);
+        log.info("Режиссер создан: - {}", director);
         return director;
     }
 
+    /**
+     * Обновляет существующего режиссера.
+     *
+     * @param director Режиссер для обновления.
+     * @return Обновленный режиссер.
+     */
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     public Director update(@Valid @RequestBody Director director) {
-        log.info("Получен запрос на изменение режиссера, исх.данные: {}", director);
+        log.info("Обновление режиссера: {}", director);
         Director directorUpdate = directorService.update(director);
-        log.info("Режиссер обновлен, результат - {}", directorUpdate);
+        log.info("Режиссер обновлен: {}", directorUpdate);
         return directorUpdate;
     }
 
+    /**
+     * Удаляет режиссера по его ID.
+     *
+     * @param id ID режиссера для удаления.
+     *           При удалении режиссера, режиссер удаляется также из связанных таблиц.
+     */
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable Long id) {
-        log.info("Получен запрос на удаление режиссера с идентификатором: {}", id);
+        log.info("Удаление режиссера с id: {}", id);
         directorService.delete(id);
-        log.info("Режиссер с id = {} удален", id);
     }
 }
