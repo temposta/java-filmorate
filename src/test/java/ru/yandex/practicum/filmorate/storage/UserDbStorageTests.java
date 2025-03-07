@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dal.mapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.dal.repository.UserRepository;
 import ru.yandex.practicum.filmorate.dal.storage.user.UserDbStorage;
@@ -17,10 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
 @AutoConfigureTestDatabase
+@Sql({"classpath:schema.sql", "classpath:data.sql"})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({UserRowMapper.class, UserRepository.class, UserDbStorage.class})
 class UserDbStorageTests {
 
+	@Autowired
 	private final UserDbStorage userStorage;
 
 	@Test

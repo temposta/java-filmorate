@@ -75,9 +75,12 @@ class DirectorServiceTest {
     @DisplayName("успешное обновление режиссера")
     void update() {
         when(directorStorage.update(any(Director.class))).thenReturn(director);
+        when(directorStorage.read(1L)).thenReturn(Optional.of(Director.builder().id(1L).name("Old Name").build()));
 
         Director result = directorService.update(director);
         assertNotNull(result);
+        assertEquals(director.getId(), result.getId());
+        assertEquals(director.getName(), result.getName());
         verify(directorStorage, times(1)).update(any(Director.class));
     }
 }
