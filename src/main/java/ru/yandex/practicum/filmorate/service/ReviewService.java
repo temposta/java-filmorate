@@ -47,7 +47,7 @@ public class ReviewService {
 
         Optional<Film> film = filmStorage.read(review.getFilmId());
         if (film.isEmpty()) {
-            log.error(ExceptionMessages.FILM_NOT_FOUNT_ERROR, film);
+            log.error(ExceptionMessages.FILM_NOT_FOUNT_ERROR, review.getFilmId());
             throw new NotFoundException(String.format(ExceptionMessages.FILM_NOT_FOUNT_ERROR, review.getFilmId()));
         }
     }
