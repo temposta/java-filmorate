@@ -20,8 +20,9 @@ public class ReviewRepository extends BaseRepository<Review> {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
     private static final String FIND_BY_FILM_ID_WITH_LIMIT_QUERY = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
 
-    private static final String SET_LIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_positive) VALUES (?, ?, ?)";
-    private static final String DELETE_LIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? and is_positive = ?";
+    private static final String SET_LIKE_QUERY = "MERGE INTO review_likes(review_id, user_id, is_positive) KEY(review_id, user_id) " +
+                                            "SELECT ?, ?, ? FROM DUAL";
+    private static final String DELETE_LIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
     private static final String UPDATE_USEFUL_QUERY = "UPDATE reviews r SET useful = " +
             "(SELECT COALESCE(COUNT(CASE WHEN rl.is_positive THEN 1 END) - COUNT(CASE WHEN NOT rl.is_positive THEN 1 END), 0) " +
             "FROM review_likes rl WHERE rl.review_id = r.review_id) " +
@@ -76,8 +77,8 @@ public class ReviewRepository extends BaseRepository<Review> {
         updateUsefulRating(reviewId);
     }
 
-    public void deleteLike(Long reviewId, Long userId, boolean isPositive) {
-        update(DELETE_LIKE_QUERY, reviewId, userId, isPositive);
+    public void deleteLike(Long reviewId, Long userId) {
+        update(DELETE_LIKE_QUERY, reviewId, userId);
         updateUsefulRating(reviewId);
     }
 

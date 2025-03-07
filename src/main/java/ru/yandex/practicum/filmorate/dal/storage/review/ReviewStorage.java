@@ -19,6 +19,6 @@ public interface ReviewStorage {
 
     void setLike(Long reviewId, Long userId, boolean isPositive);
 
-    void deleteLike(Long reviewId, Long userId, boolean isPositive);
+    void deleteLike(Long reviewId, Long userId);
 
 }

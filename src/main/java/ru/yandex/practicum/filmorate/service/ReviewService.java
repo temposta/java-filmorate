@@ -105,7 +105,6 @@ public class ReviewService {
      */
     public void addLike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
-        reviewStorage.deleteLike(reviewId, userId, false); // Удаление лайка, если он уже есть
         reviewStorage.setLike(reviewId, userId, true);
     }
 
@@ -117,7 +116,6 @@ public class ReviewService {
      */
     public void addDislike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
-        reviewStorage.deleteLike(reviewId, userId, true);
         reviewStorage.setLike(reviewId, userId, false);
     }
 
@@ -128,8 +126,7 @@ public class ReviewService {
      * @param userId   ID пользователя, который удаляет лайк.
      */
     public void deleteLike(Long reviewId, Long userId) {
-        getReviewById(reviewId); // Проверка существования отзыва
-        reviewStorage.deleteLike(reviewId, userId, true);
+        reviewStorage.deleteLike(reviewId, userId);
     }
 
     /**
@@ -139,8 +136,7 @@ public class ReviewService {
      * @param userId   ID пользователя, который удаляет дизлайк.
      */
     public void deleteDislike(Long reviewId, Long userId) {
-        getReviewById(reviewId); // Проверка существования отзыва
-        reviewStorage.deleteLike(reviewId, userId, false);
+        reviewStorage.deleteLike(reviewId, userId);
     }
 }
 

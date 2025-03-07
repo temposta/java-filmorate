@@ -45,7 +45,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void deleteLike(Long reviewId, Long userId, boolean isPositive) {
-        reviewRepository.deleteLike(reviewId, userId, isPositive);
+    public void deleteLike(Long reviewId, Long userId) {
+        reviewRepository.deleteLike(reviewId, userId);
     }
 }

@@ -169,7 +169,7 @@ class ReviewServiceTest {
         reviewService.deleteLike(review.getReviewId(), 1L);
 
         verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L, true);
+        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L);
     }
 
     @Test
@@ -178,7 +178,7 @@ class ReviewServiceTest {
 
         assertThrows(NotFoundException.class, () -> reviewService.deleteLike(review.getReviewId(), 1L));
         verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L, true);
+        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L);
     }
 
     @Test
@@ -188,7 +188,7 @@ class ReviewServiceTest {
         reviewService.deleteDislike(review.getReviewId(), 1L);
 
         verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L, false);
+        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L);
     }
 
     @Test
@@ -197,6 +197,6 @@ class ReviewServiceTest {
 
         assertThrows(NotFoundException.class, () -> reviewService.deleteDislike(review.getReviewId(), 1L));
         verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L, false);
+        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L);
     }
 }
