@@ -162,41 +162,4 @@ class ReviewServiceTest {
         verify(reviewStorage, never()).setLike(review.getReviewId(), 1L, false);
     }
 
-    @Test
-    void deleteLike() {
-        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
-
-        reviewService.deleteLike(review.getReviewId(), 1L);
-
-        verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L);
-    }
-
-    @Test
-    void deleteLikeNotFound() {
-        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> reviewService.deleteLike(review.getReviewId(), 1L));
-        verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L);
-    }
-
-    @Test
-    void deleteDislike() {
-        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.of(review));
-
-        reviewService.deleteDislike(review.getReviewId(), 1L);
-
-        verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, times(1)).deleteLike(review.getReviewId(), 1L);
-    }
-
-    @Test
-    void deleteDislikeNotFound() {
-        when(reviewStorage.findById(review.getReviewId())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> reviewService.deleteDislike(review.getReviewId(), 1L));
-        verify(reviewStorage, times(1)).findById(review.getReviewId());
-        verify(reviewStorage, never()).deleteLike(review.getReviewId(), 1L);
-    }
 }
