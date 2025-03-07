@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE TABLE IF NOT EXISTS review_likes (
   review_id bigint,
   user_id bigint,
-  is_positive boolean
+  is_positive boolean,
+  PRIMARY KEY (review_id, user_id)
 );
 
 ALTER TABLE likes ADD FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE;
