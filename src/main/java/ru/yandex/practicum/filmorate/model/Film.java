@@ -30,4 +30,5 @@ public class Film {
     private int duration;
     private Mpa mpa;
     private Set<Genre> genres;
+    private Set<Director> directors;
 }

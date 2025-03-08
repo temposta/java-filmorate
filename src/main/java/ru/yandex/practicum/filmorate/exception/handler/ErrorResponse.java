@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ErrorResponse {
     private final String message;
-    private List<String> errors;
+    private List<String> error;
 }

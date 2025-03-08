@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -27,8 +28,25 @@ public class FilmRowMapper implements RowMapper<Film> {
                 ? List.of(resultSet.getString("genre_names").split(", "))
                 : new ArrayList<>();
 
+        List<String> dirIds = resultSet.getString("dir_ids") != null
+                ? List.of(resultSet.getString("dir_ids").split(", "))
+                : new ArrayList<>();
+
+        List<String> dirNames = resultSet.getString("dir_names") != null
+                ? List.of(resultSet.getString("dir_names").split(", "))
+                : new ArrayList<>();
+
         Set<Genre> genres = new HashSet<>();
-        IntStream.range(0, genreIds.size()).forEach(i -> genres.add(Genre.builder().id(Long.parseLong(genreIds.get(i))).name(genreNames.get(i)).build()));
+        IntStream.range(0, genreIds.size()).forEach(i -> genres.add(Genre.builder()
+                .id(Long.parseLong(genreIds.get(i)))
+                .name(genreNames.get(i))
+                .build()));
+
+        Set<Director> directors = new HashSet<>();
+        IntStream.range(0, dirIds.size()).forEach(i -> directors.add(Director.builder()
+                .id(Long.parseLong(dirIds.get(i)))
+                .name(dirNames.get(i))
+                .build()));
 
         return Film.builder()
                 .id(resultSet.getLong("id"))
@@ -36,8 +54,12 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .description(resultSet.getString("description"))
                 .duration(resultSet.getInt("duration"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
-                .mpa(Mpa.builder().id(resultSet.getLong("rating")).name(resultSet.getString("mpa_name")).build())
+                .mpa(Mpa.builder()
+                        .id(resultSet.getLong("rating"))
+                        .name(resultSet.getString("mpa_name"))
+                        .build())
                 .genres(new HashSet<>(genres))
+                .directors(new HashSet<>(directors))
                 .build();
     }
 }

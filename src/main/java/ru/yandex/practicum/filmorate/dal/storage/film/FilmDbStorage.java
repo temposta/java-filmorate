@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.dal.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.enums.SearchValues;
+import ru.yandex.practicum.filmorate.enums.SortValue;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.dal.repository.FilmRepository;
 
@@ -27,6 +29,21 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilms(Long count) {
         return filmRepository.findPopular(count);
+    }
+
+    @Override
+    public List<Film> search(String query, List<SearchValues> by) {
+        return filmRepository.search(query, by);
+    }
+
+    @Override
+    public List<Film> search(Long directorId, SortValue sortValue) {
+        return filmRepository.search(directorId, sortValue);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmRepository.getCommonFilms(userId, friendId);
     }
 
     @Override
