@@ -16,60 +16,51 @@ import java.util.Optional;
 @Repository
 public class FilmRepository extends BaseRepository<Film> {
     private static final String FIND_BY_ID_QUERY = """
-            SELECT f.*,
-                   mpa.name    as mpa_name,
-                   d.directors as directors,
-                   g.genres    as genres
+            SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f
-                     LEFT JOIN (SELECT fg.FILM_ID,
-                                       json_arrayagg(json_object('id' : g.id, 'name' :   g.name) ORDER BY g.id) as genres
-                                FROM FILM_GENRE fg
-                                         left join GENRE g on g.ID = fg.GENRE_ID
-                                GROUP BY fg.FILM_ID) g on f.ID = g.FILM_ID
-                     LEFT JOIN (SELECT fd.FILM_ID,
-                                       json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) as directors
-                                FROM FILM_DIRECTOR fd
-                                         left join DIRECTOR d on d.ID = fd.DIRECTOR_ID
-                                GROUP BY fd.FILM_ID) d ON f.ID = d.FILM_ID
-                     LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN (
+                SELECT fg.film_id, json_arrayagg(json_object('id' : g.id, 'name' : g.name) ORDER BY g.id) AS genres
+                FROM film_genre fg
+                LEFT JOIN genre g on g.ID = fg.genre_id
+                GROUP BY fg.film_id) g on f.ID = g.film_id
+            LEFT JOIN (
+                SELECT fd.film_id, json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) AS directors
+                FROM film_director fd
+                LEFT JOIN director d on d.id = fd.director_id
+                GROUP BY fd.film_id) d ON f.id = d.film_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
             WHERE f.id = ?
             GROUP BY f.id""";
     private static final String FIND_ALL_QUERY = """
-            SELECT f.*,
-                   mpa.name    as mpa_name,
-                   d.directors as directors,
-                   g.genres    as genres
+            SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f
-                     LEFT JOIN (SELECT fg.FILM_ID,
-                                       json_arrayagg(json_object('id' : g.id, 'name' :   g.name)) as genres
-                                FROM FILM_GENRE fg
-                                         left join GENRE g on g.ID = fg.GENRE_ID
-                                GROUP BY fg.FILM_ID) g on f.ID = g.FILM_ID
-                     LEFT JOIN (SELECT fd.FILM_ID,
-                                       json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) as directors
-                                FROM FILM_DIRECTOR fd
-                                         left join DIRECTOR d on d.ID = fd.DIRECTOR_ID
-                                GROUP BY fd.FILM_ID) d ON f.ID = d.FILM_ID
-                     LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN (
+                SELECT fg.film_id, json_arrayagg(json_object('id' : g.id, 'name' : g.name) ORDER BY g.id) AS genres
+                FROM film_genre fg
+                LEFT JOIN genre g on g.ID = fg.genre_id
+                GROUP BY fg.film_id) g on f.ID = g.film_id
+            LEFT JOIN (
+                SELECT fd.film_id, json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) AS directors
+                FROM film_director fd
+                LEFT JOIN director d on d.id = fd.director_id
+                GROUP BY fd.film_id) d ON f.id = d.film_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
             GROUP BY f.id""";
     private static final String FIND_POPULAR_QUERY = """
-            SELECT f.*,
-                   mpa.name    as mpa_name,
-                   d.directors as directors,
-                   g.genres    as genres
+            SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f
-                     LEFT JOIN (SELECT fg.FILM_ID,
-                                       json_arrayagg(json_object('id' : g.id, 'name' :   g.name)) as genres
-                                FROM FILM_GENRE fg
-                                         left join GENRE g on g.ID = fg.GENRE_ID
-                                GROUP BY fg.FILM_ID) g on f.ID = g.FILM_ID
-                     LEFT JOIN (SELECT fd.FILM_ID,
-                                       json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) as directors
-                                FROM FILM_DIRECTOR fd
-                                         left join DIRECTOR d on d.ID = fd.DIRECTOR_ID
-                                GROUP BY fd.FILM_ID) d ON f.ID = d.FILM_ID
-                     LEFT JOIN rating mpa on mpa.id = f.rating
-                     LEFT JOIN likes l on l.film_id = f.id
+            LEFT JOIN (
+                SELECT fg.film_id, json_arrayagg(json_object('id' : g.id, 'name' : g.name) ORDER BY g.id) AS genres
+                FROM film_genre fg
+                LEFT JOIN genre g on g.ID = fg.genre_id
+                GROUP BY fg.film_id) g on f.ID = g.film_id
+            LEFT JOIN (
+                SELECT fd.film_id, json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) AS directors
+                FROM film_director fd
+                LEFT JOIN director d on d.id = fd.director_id
+                GROUP BY fd.film_id) d ON f.id = d.film_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN likes l on l.film_id = f.id
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC limit ?""";
     private static final String INSERT_QUERY = """
@@ -79,103 +70,91 @@ public class FilmRepository extends BaseRepository<Film> {
     private static final String INSERT_GENRES_QUERY = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
     private static final String UPDATE_QUERY = "UPDATE film SET name = ?, description = ?, release_date = ?, duration = ?, rating = ? WHERE id = ?";
     private static final String SEARCH_BY_QUERY = """
-            SELECT f.*,
-                   mpa.name    as mpa_name,
-                   d.directors as directors,
-                   g.genres    as genres
+            SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f
-                     LEFT JOIN (SELECT fg.FILM_ID,
-                                       json_arrayagg(json_object('id' : g.id, 'name' :   g.name)) as genres
-                                FROM FILM_GENRE fg
-                                         left join GENRE g on g.ID = fg.GENRE_ID
-                                GROUP BY fg.FILM_ID) g on f.ID = g.FILM_ID
-                     LEFT JOIN (SELECT fd.FILM_ID,
-                                       json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) as directors
-                                FROM FILM_DIRECTOR fd
-                                         left join DIRECTOR d on d.ID = fd.DIRECTOR_ID
-                                GROUP BY fd.FILM_ID) d ON f.ID = d.FILM_ID
-                     LEFT JOIN rating mpa on mpa.id = f.rating
-                     LEFT JOIN likes l on l.film_id = f.id
+            LEFT JOIN (
+                SELECT fg.film_id, json_arrayagg(json_object('id' : g.id, 'name' : g.name) ORDER BY g.id) AS genres
+                FROM film_genre fg
+                LEFT JOIN genre g on g.ID = fg.genre_id
+                GROUP BY fg.film_id) g on f.ID = g.film_id
+            LEFT JOIN (
+                SELECT fd.film_id, json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) AS directors
+                FROM film_director fd
+                LEFT JOIN director d on d.id = fd.director_id
+                GROUP BY fd.film_id) d ON f.id = d.film_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN likes l on l.film_id = f.id
             WHERE f.name ILIKE ? OR directors ILIKE ?
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC""";
     private static final String INSERT_DIRECTORS_QUERY = "INSERT INTO film_director (film_id, director_id) VALUES (?, ?)";
     private static final String SEARCH_BY_DIR_YEAR_SORT = """
-            SELECT f.*,
-                   mpa.name    as mpa_name,
-                   d.directors as directors,
-                   g.genres    as genres
+            SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f
-                     LEFT JOIN (SELECT fg.FILM_ID,
-                                       json_arrayagg(json_object('id' : g.id, 'name' :   g.name)) as genres
-                                FROM FILM_GENRE fg
-                                         left join GENRE g on g.ID = fg.GENRE_ID
-                                GROUP BY fg.FILM_ID) g on f.ID = g.FILM_ID
-                     LEFT JOIN (SELECT fd.FILM_ID,
-                                       json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) as directors
-                                FROM FILM_DIRECTOR fd
-                                         left join DIRECTOR d on d.ID = fd.DIRECTOR_ID
-                                GROUP BY fd.FILM_ID) d ON f.ID = d.FILM_ID
-                     LEFT JOIN rating mpa on mpa.id = f.rating
-                     LEFT JOIN likes l on l.film_id = f.id
-            WHERE f.ID in (
-                    SELECT DISTINCT fd.FILM_ID
+            LEFT JOIN (
+                SELECT fg.film_id, json_arrayagg(json_object('id' : g.id, 'name' : g.name) ORDER BY g.id) AS genres
+                FROM film_genre fg
+                LEFT JOIN genre g on g.ID = fg.genre_id
+                GROUP BY fg.film_id) g on f.ID = g.film_id
+            LEFT JOIN (
+                SELECT fd.film_id, json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) AS directors
+                FROM film_director fd
+                LEFT JOIN director d on d.id = fd.director_id
+                GROUP BY fd.film_id) d ON f.id = d.film_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN likes l on l.film_id = f.id
+            WHERE f.id in (
+                    SELECT DISTINCT fd.film_id
                     FROM film_director fd
-                    WHERE fd.DIRECTOR_ID = ?)
-            GROUP BY f.id, f.RELEASE_DATE
-            ORDER BY extract(YEAR FROM f.RELEASE_DATE)
+                    WHERE fd.director_id = ?)
+            GROUP BY f.id, f.release_date
+            ORDER BY extract(YEAR FROM f.release_date)
             """;
     private static final String SEARCH_BY_DIR_LIKES_SORT = """
-            SELECT f.*,
-                   mpa.name    as mpa_name,
-                   d.directors as directors,
-                   g.genres    as genres
+            SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f
-                     LEFT JOIN (SELECT fg.FILM_ID,
-                                       json_arrayagg(json_object('id' : g.id, 'name' :   g.name)) as genres
-                                FROM FILM_GENRE fg
-                                         left join GENRE g on g.ID = fg.GENRE_ID
-                                GROUP BY fg.FILM_ID) g on f.ID = g.FILM_ID
-                     LEFT JOIN (SELECT fd.FILM_ID,
-                                       json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) as directors
-                                FROM FILM_DIRECTOR fd
-                                         left join DIRECTOR d on d.ID = fd.DIRECTOR_ID
-                                GROUP BY fd.FILM_ID) d ON f.ID = d.FILM_ID
-                     LEFT JOIN rating mpa on mpa.id = f.rating
-                     LEFT JOIN likes l on l.film_id = f.id
-            WHERE f.ID in (
-                    SELECT DISTINCT fd.FILM_ID
+            LEFT JOIN (
+                SELECT fg.film_id, json_arrayagg(json_object('id' : g.id, 'name' : g.name) ORDER BY g.id) AS genres
+                FROM film_genre fg
+                LEFT JOIN genre g on g.ID = fg.genre_id
+                GROUP BY fg.film_id) g on f.ID = g.film_id
+            LEFT JOIN (
+                SELECT fd.film_id, json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) AS directors
+                FROM film_director fd
+                LEFT JOIN director d on d.id = fd.director_id
+                GROUP BY fd.film_id) d ON f.id = d.film_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN likes l on l.film_id = f.id
+            WHERE f.id in (
+                    SELECT DISTINCT fd.film_id
                     FROM film_director fd
-                    WHERE fd.DIRECTOR_ID = ?)
+                    WHERE fd.director_id = ?)
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC
             """;
     private static final String DELETE_GENRES_DIRECTORS_QUERY = "DELETE FROM film_genre WHERE film_id = ?;\n" +
                                                                 "DELETE FROM film_director WHERE film_id = ?;";
     private static final String GET_COMMON_FILMS = """
-            SELECT f.*,
-                   mpa.name    as mpa_name,
-                   d.directors as directors,
-                   g.genres    as genres
+            SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f
-                     LEFT JOIN (SELECT fg.FILM_ID,
-                                       json_arrayagg(json_object('id' : g.id, 'name' :   g.name)) as genres
-                                FROM FILM_GENRE fg
-                                         left join GENRE g on g.ID = fg.GENRE_ID
-                                GROUP BY fg.FILM_ID) g on f.ID = g.FILM_ID
-                     LEFT JOIN (SELECT fd.FILM_ID,
-                                       json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) as directors
-                                FROM FILM_DIRECTOR fd
-                                         left join DIRECTOR d on d.ID = fd.DIRECTOR_ID
-                                GROUP BY fd.FILM_ID) d ON f.ID = d.FILM_ID
-                     LEFT JOIN rating mpa on mpa.id = f.rating
-                     LEFT JOIN likes l on l.film_id = f.id
-            WHERE f.ID in (
-                    SELECT FILM_ID
-                    FROM LIKES
-                    WHERE USER_ID IN (?, ?)
-                    GROUP BY FILM_ID
-                    HAVING COUNT(FILM_ID) > 1)
+            LEFT JOIN (
+                SELECT fg.film_id, json_arrayagg(json_object('id' : g.id, 'name' : g.name) ORDER BY g.id) AS genres
+                FROM film_genre fg
+                LEFT JOIN genre g on g.ID = fg.genre_id
+                GROUP BY fg.film_id) g on f.ID = g.film_id
+            LEFT JOIN (
+                SELECT fd.film_id, json_arrayagg(json_object('id' : d.id, 'name' :   d.name)) AS directors
+                FROM film_director fd
+                LEFT JOIN director d on d.id = fd.director_id
+                GROUP BY fd.film_id) d ON f.id = d.film_id
+            LEFT JOIN rating mpa on mpa.id = f.rating
+            LEFT JOIN likes l on l.film_id = f.id
+            WHERE f.id in (
+                    SELECT film_id
+                    FROM likes
+                    WHERE user_id IN (?, ?)
+                    GROUP BY film_id
+                    HAVING count(film_id) > 1)
             GROUP BY f.id
             ORDER BY count(l.user_id) DESC
             """;

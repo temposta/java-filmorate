@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Component
 @AllArgsConstructor
@@ -24,9 +25,9 @@ public class FilmRowMapper implements RowMapper<Film> {
     @Override
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
 
-        final LinkedHashSet<Genre> genres = getSetOfJson(resultSet.getString("genres"));
+        final Set<Genre> genres = setFromJsonArray(resultSet.getString("genres"));
 
-        final LinkedHashSet<Director> directors = getSetOfJson(resultSet.getString("directors"));
+        final Set<Director> directors = setFromJsonArray(resultSet.getString("directors"));
 
         return Film.builder()
                 .id(resultSet.getLong("id"))
@@ -43,11 +44,14 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .build();
     }
 
-    private <T> LinkedHashSet<T> getSetOfJson(String jsonArray) {
+    private <T> Set<T> setFromJsonArray(String jsonArray) {
 
-        LinkedHashSet<T> result = new LinkedHashSet<>();
+        Set<T> result = new LinkedHashSet<>();
 
-        if (jsonArray != null) try {
+        if (jsonArray == null || jsonArray.isEmpty()) {
+            return result;
+        }
+        try {
             result.addAll(mapper.readValue(jsonArray, new TypeReference<LinkedHashSet<T>>() {
             }));
         } catch (JsonProcessingException e) {
