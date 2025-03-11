@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.dal.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -9,44 +13,21 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 @Component
+@AllArgsConstructor
 public class FilmRowMapper implements RowMapper<Film> {
+
+    private final ObjectMapper mapper;
 
     @Override
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        List<String> genreIds = resultSet.getString("genre_ids") != null
-                ? List.of(resultSet.getString("genre_ids").split(", "))
-                : new ArrayList<>();
 
-        List<String> genreNames = resultSet.getString("genre_names") != null
-                ? List.of(resultSet.getString("genre_names").split(", "))
-                : new ArrayList<>();
+        final Set<Genre> genres = setFromJsonArray(resultSet.getString("genres"));
 
-        List<String> dirIds = resultSet.getString("dir_ids") != null
-                ? List.of(resultSet.getString("dir_ids").split(", "))
-                : new ArrayList<>();
-
-        List<String> dirNames = resultSet.getString("dir_names") != null
-                ? List.of(resultSet.getString("dir_names").split(", "))
-                : new ArrayList<>();
-
-        Set<Genre> genres = new HashSet<>();
-        IntStream.range(0, genreIds.size()).forEach(i -> genres.add(Genre.builder()
-                .id(Long.parseLong(genreIds.get(i)))
-                .name(genreNames.get(i))
-                .build()));
-
-        Set<Director> directors = new HashSet<>();
-        IntStream.range(0, dirIds.size()).forEach(i -> directors.add(Director.builder()
-                .id(Long.parseLong(dirIds.get(i)))
-                .name(dirNames.get(i))
-                .build()));
+        final Set<Director> directors = setFromJsonArray(resultSet.getString("directors"));
 
         return Film.builder()
                 .id(resultSet.getLong("id"))
@@ -58,8 +39,25 @@ public class FilmRowMapper implements RowMapper<Film> {
                         .id(resultSet.getLong("rating"))
                         .name(resultSet.getString("mpa_name"))
                         .build())
-                .genres(new HashSet<>(genres))
-                .directors(new HashSet<>(directors))
+                .genres(genres)
+                .directors(directors)
                 .build();
+    }
+
+    private <T> Set<T> setFromJsonArray(String jsonArray) {
+
+        Set<T> result = new LinkedHashSet<>();
+
+        if (jsonArray == null || jsonArray.isEmpty()) {
+            return result;
+        }
+        try {
+            result.addAll(mapper.readValue(jsonArray, new TypeReference<LinkedHashSet<T>>() {
+            }));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
     }
 }
