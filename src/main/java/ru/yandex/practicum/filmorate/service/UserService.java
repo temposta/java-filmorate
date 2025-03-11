@@ -2,10 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.repository.EventRepository;
+import ru.yandex.practicum.filmorate.dal.repository.UserRepository;
 import ru.yandex.practicum.filmorate.dal.storage.friendship.FriendshipStorage;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
 
@@ -17,8 +20,9 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
-
     private final FriendshipStorage friendshipStorage;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
 
     public List<User> getAll() {
         return userStorage.getAll();
@@ -92,5 +96,11 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, friendId)));
         friendshipStorage.delete(user.getId(), friend.getId());
         log.info("Пользователь с id = {} удалил друга с id = {}", userId, friendId);
+    }
+
+    public List<Event> getUserEvents(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+        return eventRepository.getUserEvents(userId);
     }
 }

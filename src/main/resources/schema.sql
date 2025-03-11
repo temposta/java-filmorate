@@ -44,6 +44,15 @@ CREATE TABLE IF NOT EXISTS rating (
   name varchar(50)
 );
 
+CREATE TABLE IF NOT EXISTS events (
+    event_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    timestamp BIGINT NOT NULL,user_id BIGINT NOT NULL,
+    event_type VARCHAR(50) NOT NULL,
+    operation VARCHAR(50) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 ALTER TABLE likes ADD FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE NO ACTION;
 
 ALTER TABLE likes ADD FOREIGN KEY (film_id) REFERENCES film (id) ON DELETE NO ACTION;
