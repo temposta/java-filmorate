@@ -1,10 +1,22 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.enums.SearchValues;
+import ru.yandex.practicum.filmorate.enums.SortValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -82,4 +94,38 @@ public class FilmController {
         log.info("Метод DELETE /films/{id}/like/{userId} успешно выполнен");
     }
 
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> searchFilms(@RequestParam("query") String query,
+                                  @RequestParam("by") List<String> by) {
+        log.info("Вызван метод GET /fimls/search с параметрами query = {}, by = {}", query, by.toString());
+        List<SearchValues> searchValues = by.stream()
+                .map(String::toUpperCase)
+                .map(SearchValues::valueOf)
+                .toList();
+        List<Film> foundedFilms = filmService.search(query, searchValues);
+        log.info("Метод GET /fimls/search успешно выполнен, число найденных фильмов = {}", foundedFilms.size());
+        return foundedFilms;
+    }
+
+    @GetMapping("director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> searchFilms(@PathVariable @Positive Long directorId,
+                                  @RequestParam("sortBy") String sortBy) {
+        log.info("Вызван метод GET /films/director/{}?sortBy={}", directorId, sortBy);
+        SortValue sortValue = SortValue.valueOf(sortBy.toUpperCase());
+        List<Film> foundedFilms = filmService.search(directorId, sortValue);
+        log.info("Метод GET /films/director/{}?sortBy={} успешно выполнен, число найденных фильмов = {}",
+                directorId, sortBy, foundedFilms.size());
+        return foundedFilms;
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam(name = "userId") Long userId,
+                                     @RequestParam(name = "friendId") Long friendId) {
+        log.info("Получен запрос GET /films/common?userId={}&friendId={}", userId, friendId);
+        List<Film> commonFilms = filmService.getCommonFilms(userId, friendId);
+        log.info("Отправлен ответ GET /films/common с количеством фильмов: {}", commonFilms.size());
+        return commonFilms;
+    }
 }
