@@ -133,7 +133,7 @@ public class FilmRepository extends BaseRepository<Film> {
             ORDER BY count(l.user_id) DESC
             """;
     private static final String DELETE_GENRES_DIRECTORS_QUERY = "DELETE FROM film_genre WHERE film_id = ?;\n" +
-                                                                "DELETE FROM film_director WHERE film_id = ?;";
+            "DELETE FROM film_director WHERE film_id = ?;";
     private static final String GET_COMMON_FILMS = """
             SELECT f.*, mpa.name as mpa_name, d.directors as directors, g.genres as genres
             FROM film f

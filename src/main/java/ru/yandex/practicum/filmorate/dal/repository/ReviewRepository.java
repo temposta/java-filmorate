@@ -21,7 +21,7 @@ public class ReviewRepository extends BaseRepository<Review> {
     private static final String FIND_BY_FILM_ID_WITH_LIMIT_QUERY = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
 
     private static final String SET_LIKE_QUERY = "MERGE INTO review_likes(review_id, user_id, is_positive) KEY(review_id, user_id) " +
-                                            "SELECT ?, ?, ? FROM DUAL";
+            "SELECT ?, ?, ? FROM DUAL";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
     private static final String UPDATE_USEFUL_QUERY = "UPDATE reviews r SET useful = " +
             "(SELECT COALESCE(COUNT(CASE WHEN rl.is_positive THEN 1 END) - COUNT(CASE WHEN NOT rl.is_positive THEN 1 END), 0) " +
