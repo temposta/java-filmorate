@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.repository.EventRepository;
 import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
@@ -11,6 +12,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -26,6 +29,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final EventService eventService;
 
     /**
      * Создает новый отзыв.
@@ -34,8 +38,11 @@ public class ReviewService {
      * @return Созданный отзыв.
      */
     public Review createReview(Review review) {
-        validateReview(review); // Проверка валидности отзыва
-        return reviewStorage.create(review);
+        validateReview(review);// Проверка валидности отзыва
+        Review createdReview = reviewStorage.create(review);
+        eventService.saveEvent(review.getUserId(), EventType.REVIEW, OperationType.ADD, review.getReviewId());
+        log.error("GET REVIEW ID: {}", review.getReviewId());
+        return createdReview;
     }
 
     private void validateReview(Review review) {
@@ -61,6 +68,7 @@ public class ReviewService {
     public Review updateReview(Review review) {
         getReviewById(review.getReviewId()); // Проверка существования отзыва
         validateReview(review); // Проверка валидности отзыва
+        eventService.saveEvent(review.getUserId(), EventType.REVIEW, OperationType.UPDATE, review.getReviewId());
         return reviewStorage.update(review).orElseThrow();
     }
 
@@ -70,7 +78,8 @@ public class ReviewService {
      * @param id ID отзыва для удаления.
      */
     public void deleteReview(Long id) {
-        getReviewById(id); // Проверка существования отзыва
+        Review reviewById = getReviewById(id);// Проверка существования отзыва
+        eventService.saveEvent(reviewById.getUserId(), EventType.REVIEW, OperationType.REMOVE, id);
         reviewStorage.delete(id);
     }
 
@@ -106,6 +115,7 @@ public class ReviewService {
     public void addLike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
         reviewStorage.setLike(reviewId, userId, true);
+        eventService.saveEvent(userId, EventType.LIKE, OperationType.ADD, reviewId);
     }
 
     /**
@@ -117,6 +127,7 @@ public class ReviewService {
     public void addDislike(Long reviewId, Long userId) {
         getReviewById(reviewId); // Проверка существования отзыва
         reviewStorage.setLike(reviewId, userId, false);
+        eventService.saveEvent(userId, EventType.LIKE, OperationType.UPDATE, reviewId);
     }
 
     /**
@@ -126,6 +137,7 @@ public class ReviewService {
      * @param userId   ID пользователя, который удаляет лайк.
      */
     public void deleteLike(Long reviewId, Long userId) {
+        eventService.saveEvent(userId, EventType.LIKE, OperationType.REMOVE, reviewId);
         reviewStorage.deleteLike(reviewId, userId);
     }
 
@@ -137,6 +149,7 @@ public class ReviewService {
      */
     public void deleteDislike(Long reviewId, Long userId) {
         reviewStorage.deleteLike(reviewId, userId);
+        eventService.saveEvent(userId, EventType.LIKE, OperationType.REMOVE, reviewId);
     }
 }
 

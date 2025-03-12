@@ -19,6 +19,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +39,7 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final LikeStorage likeStorage;
     private final DirectorStorage directorStorage;
+    private final EventService eventService;
 
     public Film create(Film film) {
         checkMpa(film);
@@ -111,6 +114,7 @@ public class FilmService {
         checkUser(userId);
         likeStorage.create(userId, filmId);
         log.info("Пользователь с id = {} поставил лайк фильму с id = {}", userId, filmId);
+        eventService.saveEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -118,6 +122,7 @@ public class FilmService {
         checkUser(userId);
         likeStorage.delete(userId, filmId);
         log.info("Пользователь с id = {} убрал лайк с фильма с id = {}", userId, filmId);
+        eventService.saveEvent(userId, EventType.LIKE, OperationType.REMOVE, filmId);
     }
 
     public List<Film> getPopularFilms(Long count) {

@@ -3,17 +3,20 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.repository.EventRepository;
 import ru.yandex.practicum.filmorate.dal.repository.UserRepository;
 import ru.yandex.practicum.filmorate.dal.storage.friendship.FriendshipStorage;
+import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.exception.ExceptionMessages;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -23,7 +26,7 @@ public class UserService {
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
     private final UserRepository userRepository;
-    private final EventRepository eventRepository;
+    private final EventService eventService;
 
     public List<User> getAll() {
         return userStorage.getAll();
@@ -90,6 +93,7 @@ public class UserService {
             throw new ValidationException("Невозможно добавить в друзья самого себя");
         friendshipStorage.create(user.getId(), friend.getId());
         log.info("Пользователь с id = {} добавил друга с id = {}", userId, friendId);
+        eventService.saveEvent(userId, EventType.FRIEND, OperationType.ADD, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
@@ -99,11 +103,13 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, friendId)));
         friendshipStorage.delete(user.getId(), friend.getId());
         log.info("Пользователь с id = {} удалил друга с id = {}", userId, friendId);
+        eventService.saveEvent(userId, EventType.FRIEND, OperationType.REMOVE, friendId);
     }
 
     public List<Event> getUserEvents(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
-        return eventRepository.getUserEvents(userId);
+        return eventService.getEvents(userId);
     }
+
 }

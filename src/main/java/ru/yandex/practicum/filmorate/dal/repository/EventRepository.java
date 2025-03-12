@@ -25,7 +25,7 @@ public class EventRepository {
 
     public void save(Event event) {
         jdbcTemplate.update(SAVE_EVENT, event.getTimestamp(), event.getUserId(), event.getEventType().name(),
-                event.getOperation().name(), event.getId());
+                event.getOperation().name(), event.getEntityId());
     }
 
     public List<Event> getUserEvents(Long id) {
