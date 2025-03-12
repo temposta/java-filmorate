@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,7 +58,9 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        userStorage.delete(id);
+        if (!userStorage.delete(id)) {
+            throw new NotFoundException(String.format(ExceptionMessages.USER_NOT_FOUNT_ERROR, id));
+        }
     }
 
     public List<User> getFriends(Long userId) {

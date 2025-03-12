@@ -59,8 +59,8 @@ public class UserRepository extends BaseRepository<User> {
         return user;
     }
 
-    public void delete(Long userId) {
-        delete(DELETE_QUERY, userId);
+    public boolean delete(Long userId) {
+        return delete(DELETE_QUERY, userId);
     }
 
     public List<User> findFriendsById(Long userId) {
